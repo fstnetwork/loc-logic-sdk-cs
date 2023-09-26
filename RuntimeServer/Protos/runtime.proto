@@ -1,0 +1,189 @@
+syntax = "proto3";
+
+option csharp_namespace = "RuntimeServer";
+
+package runtime;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+service Runtime {
+  rpc FetchPayload(google.protobuf.Empty) returns (Payload);
+
+  // Logging Agent
+  rpc Log (LogRequest) returns (google.protobuf.Empty);
+
+  // Database Agent
+  rpc Acquire (AcquireRequest) returns (AcquireResponse);
+  rpc Release (ReleaseRequest) returns (google.protobuf.Empty);
+  rpc Query (QueryRequest) returns (QueryResponse);
+  rpc Execute (ExecuteRequest) returns (ExecuteResponse);
+  rpc BeginTransaction (BeginTransactionRequest) returns (google.protobuf.Empty);
+  rpc CommitTransaction (CommitTransactionRequest) returns (google.protobuf.Empty);
+  rpc RollbackTransaction (RollbackTransactionRequest) returns (google.protobuf.Empty);
+}
+
+message Payload {
+  oneof payload_type {
+    HttpPayload http = 1;
+    MessagePayload messageQueue = 2;
+    EventPayload event = 3;
+  }
+}
+
+message HttpPayload {
+  NonVersionedIdentityContext apiGatewayIdentityContext = 1;
+  NonVersionedIdentityContext apiRouteIdentityContext = 2;
+  Peer destination = 3;
+  HttpRequest request = 4;
+  string requestId = 5;
+  Peer source = 6;
+}
+
+message MessagePayload {
+  NonVersionedIdentityContext clientIdentityContext = 1;
+  bytes data = 2;
+  Subscriber subscriber = 3;
+}
+
+message EventPayload {}
+
+message Peer {
+  Address address = 1;
+}
+
+message Address {
+  oneof address_type {
+    SocketAddress socketAddr = 1;
+    Pipe pipe = 2;
+  }
+}
+
+message SocketAddress {
+  string address = 1;
+  string protocol = 2;
+}
+
+message Pipe {
+  int32 mode = 1;
+  string path = 2;
+}
+
+message HttpRequest {
+  bytes data = 1;
+  map<string, string> headers = 2;
+  string host = 3;
+  string method = 4;
+  string path = 5;
+  string query = 6;
+  string scheme = 7;
+  string version = 8;
+}
+
+message Subscriber {
+  KafkaSubscriber kafka = 1;
+}
+
+message KafkaSubscriber {
+  repeated string brokers = 1;
+  string groupId = 2;
+  int64 offset = 3;
+  int32 partition = 4;
+  string topic = 5;
+}
+
+// Logging Agent
+message LogRequest {
+  string level   = 1;
+  string message = 2;
+}
+
+// Database Agent
+message AcquireRequest {
+  string name = 1;
+}
+
+message AcquireResponse {
+  string data_source_id = 1;
+  string connection_id = 2;
+}
+
+message ReleaseRequest {
+  string data_source_id = 1;
+  string connection_id = 2;
+}
+
+message QueryRequest {
+  string data_source_id = 1;
+  string connection_id = 2;
+  string raw_sql = 3;
+  google.protobuf.ListValue params = 4;
+}
+
+message QueryResponse {
+  repeated DatabaseColumn columns = 1;
+  repeated StructArray rows = 2;
+}
+
+message StructArray {
+  repeated google.protobuf.Struct inner = 1;
+}
+
+message ExecuteRequest {
+  string data_source_id = 1;
+  string connection_id = 2;
+  string raw_sql = 3;
+  repeated google.protobuf.Value params = 4;
+}
+
+message ExecuteResponse {
+  uint64 affected_rows = 1;
+}
+
+message BeginTransactionRequest {
+  string data_source_id = 1;
+  string connection_id = 2;
+}
+
+message CommitTransactionRequest {
+  string data_source_id = 1;
+  string connection_id = 2;
+}
+
+message RollbackTransactionRequest {
+  string data_source_id = 1;
+  string connection_id = 2;
+}
+
+message DatabaseColumn {
+  string name = 1;
+  string type = 2;
+}
+
+
+
+//////////////// temp
+message Revision {
+  int32 value = 1;
+}
+
+message Uuid {
+  uint64 high_bits = 1;
+  uint64 low_bits = 2;
+}
+
+message VersionedIdentity {
+  Uuid permanent_identity = 1;
+  Revision revision = 2;
+}
+
+message VersionedIdentityContext {
+  VersionedIdentity id = 1;
+  string name = 2;
+}
+
+message NonVersionedIdentityContext {
+  Uuid id = 1;
+  string name = 2;
+}
+////////////////
