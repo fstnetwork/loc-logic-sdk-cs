@@ -1,0 +1,35 @@
+name: CodeQL Analysis
+
+on:
+  push:
+    branches:
+      - main
+      - main-*
+      - develop
+      - release/*
+      - feature/*
+      - ci/*
+    tags:
+      - v*
+  pull_request:
+  schedule:
+    - cron: "0 21 * * 0"
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ["csharp"]
+          queries: security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
