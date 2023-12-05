@@ -12,8 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="Protos\runtime.proto" GrpcServices="Server" />
-    <!-- <Protobuf Include="Protos\agents\*.proto" /> -->
+    <Protobuf Include="..\..\Protos\runtime.proto" GrpcServices="Server" />
   </ItemGroup>
 
 </Project>

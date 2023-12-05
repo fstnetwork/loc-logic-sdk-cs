@@ -3,7 +3,7 @@
 ## Getting Started
 Step 1. run Saffron Runtime simulation (provide gRPC agent calls)
 ```bash
-dotnet run --project RuntimeServer
+dotnet run --project example/RuntimeServer
 ```
 
 Step 2. build your Logic code
