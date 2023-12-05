@@ -14,7 +14,7 @@
   // Configure tool-specific properties.
   "customizations": {
     // Configure properties specific to VS Code.
-      "vscode": {
+    "vscode": {
       "settings": {},
       "extensions": [
         "ms-dotnettools.csdevkit",

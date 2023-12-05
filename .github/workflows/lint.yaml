@@ -1,0 +1,51 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+      - main-*
+      - develop
+      - release/*
+      - feature/*
+      - ci/*
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  format:
+    name: Lint format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run prettier
+        uses: creyD/prettier_action@v4.3
+        with:
+          dry: true
+          prettier_options: --check **/*.{js,ts,md,json,yaml}
+
+  commit:
+    name: Lint commit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run commitlint
+        uses: wagoid/commitlint-github-action@v5
+        with:
+          firstParent: false
+
+  codespell:
+    name: Codespell
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: codespell-project/codespell-problem-matcher@v1
+
+      - name: Codespell
+        uses: codespell-project/actions-codespell@master
