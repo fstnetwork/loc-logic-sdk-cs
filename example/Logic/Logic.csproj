@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SDK\SDK.csproj" />
+    <ProjectReference Include="..\..\SDK\SDK.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj">
       <Aliases>Shared</Aliases>
     </ProjectReference>

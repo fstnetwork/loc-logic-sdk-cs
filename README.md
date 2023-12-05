@@ -8,7 +8,7 @@ dotnet run --project example/RuntimeServer
 
 Step 2. build your Logic code
 ```bash
-dotnet publish Logic \
+dotnet publish example/Logic \
     /p:NativeLib=Shared \
     --runtime linux-arm64 \
     --no-self-contained
@@ -16,8 +16,8 @@ dotnet publish Logic \
 
 Step 3. Execute C# Runtime with your Logic
 ```bash
-export LD_LIBRARY_PATH='/workspaces/LOC/Logic/bin/Debug/net7.0/linux-arm64/publish'
-# export LD_LIBRARY_PATH='/workspaces/LOC/Logic/bin/release/net7.0/linux-arm64/publish'
+export LD_LIBRARY_PATH='/workspaces/LOC/example/Logic/bin/Debug/net7.0/linux-arm64/publish'
+# export LD_LIBRARY_PATH='/workspaces/LOC/example/Logic/bin/release/net7.0/linux-arm64/publish'
 dotnet run --project Runtime -- --runtime-address http://localhost:5224
 ```
 

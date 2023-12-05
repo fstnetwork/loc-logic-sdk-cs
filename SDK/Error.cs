@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 [StructLayout(LayoutKind.Sequential)]
 public class ExceptionWrapper
 {
-    public new IntPtr Pointer;
-    public new int Size;
+    public IntPtr Pointer;
+    public int Size;
 
     public ExceptionWrapper() { }
 
