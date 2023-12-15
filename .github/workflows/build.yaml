@@ -1,0 +1,40 @@
+name: Build Runtime
+
+on:
+  push:
+    branches:
+      - main
+      - main-*
+      - develop
+      - release/*
+      - feature/*
+      - ci/*
+    tags:
+      - v*
+  pull_request:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Runtime
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Build Runtime
+        run: |
+          dotnet build --configuration Release
+  
+      - name: Archive Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-runtime
+          path: Runtime/bin/Release/net7.0/Runtime
