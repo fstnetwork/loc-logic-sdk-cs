@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package saffron.execution;
+
+import "common/Hash.proto";
+import "common/U128.proto";
+import "common/Identity.proto";
+
+message TaskKey {
+  saffron.common.U128 execution_id = 1;
+
+  saffron.common.U128 task_id = 2;
+}
+
+message TaskPayload {
+  message Data {
+    oneof data {
+      saffron.common.Hash hash = 1;
+      bytes bytes = 2;
+    }
+  }
+
+  message HttpPayload {
+    message Pipe {
+      // Unix Domain Socket path.
+      string path = 1;
+
+      // The mode for the Pipe.
+      uint32 mode = 2;
+    }
+
+    enum Protocol {
+      PROTOCOL_UNSPECIFIED = 0;
+      PROTOCOL_TCP = 1;
+      PROTOCOL_UDP = 2;
+    }
+
+    message SocketAddress {
+      // L4 protocol.
+      Protocol protocol = 1;
+
+      // The address for this socket.
+      bytes address = 2;
+
+      // port.
+      uint32 port = 3;
+    }
+
+    // Addresses specify either a logical or physical address and port, which are
+    // used to tell where to bind/listen, connect to upstream and find
+    // management servers.
+    message Address {
+      oneof address {
+        SocketAddress socket_address = 1;
+        Pipe pipe = 2;
+      }
+    }
+
+    message Peer {
+      // The address of the peer, this is typically the IP address.
+      // It can also be UDS path, or others.
+      Address address = 1;
+    }
+
+    enum Version {
+      VERSION_UNSPECIFIED = 0;
+      VERSION_HTTP_09 = 1;
+      VERSION_HTTP_10 = 2;
+      VERSION_HTTP_11 = 3;
+      VERSION_HTTP_2 = 4;
+      VERSION_HTTP_3 = 5;
+    }
+
+    message HttpRequest {
+      message Header {
+        bytes name = 1;
+        bytes value = 2;
+      }
+
+      // The HTTP URL scheme, such as `http` and `https`.
+      string scheme = 1;
+
+      // The request method.
+      string method = 2;
+
+      // the path
+      string path = 3;
+
+      // The URL query
+      string query = 4;
+
+      // The network protocol used with the request, such as "HTTP/1.0", "HTTP/1.1",
+      // "HTTP/2" or "HTTP/3".
+      Version version = 5;
+
+      // The HTTP request headers. If multiple headers share the same key, they
+      // must be merged according to the HTTP spec. All header keys must be
+      // lower-cased, because HTTP header keys are case-insensitive.
+      repeated Header headers = 6;
+
+      // The HTTP request `Host` or 'Authority` header value.
+      string host = 7;
+
+      // The HTTP request body.
+      Data body = 8;
+    }
+
+    // the identity context of api gateway
+    saffron.common.NonVersionedIdentityContext api_gateway_identity_context = 1;
+
+    // the identity context for api route
+    saffron.common.NonVersionedIdentityContext api_route_identity_context = 2;
+
+    // NOTE: we can't get this because of using 3rd api gateway
+    // The source of a network activity
+    Peer source = 3;
+
+    // The destination of a network activity
+    Peer destination = 4;
+
+    // Represents an HTTP request id.
+    string request_id = 5;
+
+    // Represents an HTTP request.
+    HttpRequest request = 6;
+  }
+
+  message EventPayload {}
+
+  message MessagePayload {
+    message KafkaSubscriber {
+      repeated string brokers = 1;
+
+      string group_id = 2;
+
+      string topic = 3;
+
+      int32 partition = 4;
+
+      int64 offset = 5;
+    }
+
+    message Subscriber {
+      oneof subscriber {
+        KafkaSubscriber kafka = 1;
+      }
+    }
+
+    // the identity context of message queue client
+    saffron.common.NonVersionedIdentityContext client_identity_context = 1;
+
+    // Represents subscriber information of a message from message queue.
+    Subscriber subscriber = 2;
+
+    // the message data from message queue.
+    Data data = 3;
+  }
+
+  oneof payload {
+    HttpPayload http = 1;
+    EventPayload event = 2;
+    MessagePayload message = 3;
+  }
+}

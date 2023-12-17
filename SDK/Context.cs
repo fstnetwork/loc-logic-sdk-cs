@@ -42,7 +42,8 @@ public abstract class AbstractContext
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        var payload = await client.FetchPayloadAsync(new Empty());
+        var req = new FetchPayloadRequest();
+        var resp = await client.FetchPayloadAsync(req);
 
         // TODO: implement payload deserialization
         return new HttpPayload { };

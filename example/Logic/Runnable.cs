@@ -1,6 +1,4 @@
 using System.Runtime.InteropServices;
-using RuntimeServer;
-using Google.Protobuf;
 
 public static class RunnableGenericLogic
 {
@@ -42,5 +40,12 @@ public static class RunnableGenericLogic
         var logicError = exceptionWrapper.ToLogicError();
 
         GenericLogic.handleError(ctx, logicError).GetAwaiter().GetResult();
+    }
+
+    [UnmanagedCallersOnly(EntryPoint = "version")]
+    public static IntPtr Version()
+    {
+        string versionString = "0.0.1";
+        return Marshal.StringToHGlobalAnsi(versionString);
     }
 }

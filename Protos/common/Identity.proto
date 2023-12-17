@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package saffron.common;
+
+import "common/Revision.proto";
+import "common/Uuid.proto";
+
+message VersionedIdentity {
+  Uuid permanent_identity = 1;
+  Revision revision = 2;
+}
+
+message VersionedIdentityContext {
+  VersionedIdentity id = 1;
+  string name = 2;
+}
+
+message NonVersionedIdentityContext {
+  saffron.common.Uuid id = 1;
+  string name = 2;
+}

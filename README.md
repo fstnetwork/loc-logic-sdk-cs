@@ -20,9 +20,9 @@ dotnet publish example/Logic \
 Step 3. Execute C# Runtime with your Logic
 
 ```bash
-export LD_LIBRARY_PATH='/workspaces/LOC/example/Logic/bin/Debug/net7.0/linux-arm64/publish'
-# export LD_LIBRARY_PATH='/workspaces/LOC/example/Logic/bin/release/net7.0/linux-arm64/publish'
-dotnet run --project Runtime -- --runtime-address http://localhost:5224
+export LD_LIBRARY_PATH='/workspaces/loc-logic-sdk-cs/example/Logic/bin/Debug/net7.0/linux-arm64/publish'
+# export LD_LIBRARY_PATH='/workspaces/loc-logic-sdk-cs/example/Logic/bin/release/net7.0/linux-arm64/publish'
+dotnet run --project Runtime -- --runtime-address http://localhost:5224 --ctx b2sK
 ```
 
 ## Pack and Publish SDK

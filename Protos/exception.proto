@@ -1,8 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "RuntimeServer";
-
-package runtime;
+package saffron.runtime;
 
 message ExceptionInfo {
     string type = 1;

@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package saffron.common;
+
+message Hash {
+  bytes bytes = 1;
+}

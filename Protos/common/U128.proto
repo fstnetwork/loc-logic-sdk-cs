@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package saffron.common;
+
+message U128 {
+  bytes value = 1;
+}
