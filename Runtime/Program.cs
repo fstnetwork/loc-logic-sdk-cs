@@ -43,10 +43,14 @@ class Runtime
             .WithParsed(opts => options = opts)
             .WithNotParsed(errs =>
             {
-                Console.WriteLine("Argument parsing error occurred:");
-                foreach (var err in errs)
+                var unhandledErrors = errs.Where(err => !(err is HelpRequestedError || err is VersionRequestedError)).ToList();
+                if (unhandledErrors.Any())
                 {
-                    Console.WriteLine(err.ToString());
+                    Console.WriteLine("Argument parsing error occurred:");
+                    foreach (var err in unhandledErrors)
+                    {
+                        Console.WriteLine($"Error: {err}");
+                    }
                 }
             });
 
