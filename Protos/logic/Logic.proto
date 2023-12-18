@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package saffron.logic;
+
+enum LogicType {
+  LOGIC_TYPE_UNSPECIFIED = 0;
+  LOGIC_TYPE_GENERIC = 1;
+  LOGIC_TYPE_AGGREGATOR = 2;
+}

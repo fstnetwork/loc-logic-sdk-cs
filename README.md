@@ -30,14 +30,14 @@ dotnet run --project Runtime -- --runtime-address http://localhost:5224 --ctx b2
 Step 1. package SDK as a .nupkg file
 
 ```bash
-dotnet pack SDK
+dotnet pack SDK --configuration Release
 ```
 
 Step 2.
 publish to https://www.nuget.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Debug/LOC.Logic.SDK.0.0.1.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
     --api-key qz2jga8pl3dvn2akksyquwcs9ygggg4exypy3bhxy6w6x6 \
     --source https://api.nuget.org/v3/index.json \
     --skip-duplicate
@@ -46,7 +46,7 @@ dotnet nuget push ./SDK/bin/Debug/LOC.Logic.SDK.0.0.1.nupkg \
 or publish to the test server https://int.nugettest.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Debug/LOC.Logic.SDK.0.0.1.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
     --api-key oy2owt5lhzhy7k2txbwapz4ovzyn6r4enohleifrbvyq64 \
     --source https://int.nugettest.org/api/v2/package \
     --skip-duplicate
@@ -56,7 +56,7 @@ or publish to self-host NuGet server (e.g. BaGet)
 
 ```bash
 kubectl port-forward svc/baget 5000:80 --address 192.168.96.80
-dotnet nuget push ./SDK/bin/Debug/LOC.Logic.SDK.0.0.1.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
     --api-key ERTdMbF49MS6jaaxvXqDntly \
     --source http://192.168.96.80:5000/v3/index.json \
     --skip-duplicate

@@ -1,8 +1,8 @@
 ﻿extern alias Shared;
 
-public static class GenericLogic
+public static class Logic
 {
-    public static async Task run(GenericContext ctx)
+    public static async Task run(Context ctx)
     {
         Console.WriteLine("[START LOGIC]");
 
@@ -17,7 +17,7 @@ public static class GenericLogic
         Console.WriteLine("[END LOGIC]");
     }
 
-    public static async Task handleError(GenericContext ctx, Exception error)
+    public static async Task handleError(Context ctx, Exception error)
     {
         Console.WriteLine("[HANDLE ERROR]");
         await LoggingAgent.Log("ERROR", $"Error occurred: {error}");

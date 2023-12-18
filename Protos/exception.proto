@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-package saffron.runtime;
-
-message ExceptionInfo {
-    string type = 1;
-    string message = 2;
-    string stack_trace = 3;
-}

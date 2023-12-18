@@ -32,6 +32,11 @@ public static class LoggingAgent
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        await client.LogAsync(new LogRequest { Level = level, Message = message });
+        await client.LogAsync(new LogRequest
+        {
+            TaskKey = Global.TaskKey.ToProto(),
+            Level = level,
+            Message = message
+        });
     }
 }

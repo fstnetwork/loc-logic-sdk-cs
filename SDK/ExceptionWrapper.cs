@@ -1,4 +1,4 @@
-using Saffron.Runtime;
+using Saffron.ExternalRuntime;
 using System.Runtime.InteropServices;
 
 [StructLayout(LayoutKind.Sequential)]
@@ -37,12 +37,31 @@ public class ExceptionWrapper
         Size = ex.Size;
     }
 
+    public ExceptionWrapper(RailwayError? railwayError)
+    {
+        var exceptionInfo = new ExceptionInfo
+        {
+            Type = railwayError?.Name ?? "CustomError",
+            Message = railwayError?.Message ?? "Missing railway error",
+        };
+        byte[] exceptionBytes = Utils.ConvertToByteArray(exceptionInfo);
+        IntPtr exceptionPtr = Marshal.AllocHGlobal(exceptionBytes.Length);
+        Marshal.Copy(exceptionBytes, 0, exceptionPtr, exceptionBytes.Length);
+
+        Pointer = exceptionPtr;
+        Size = exceptionBytes.Length;
+    }
+
     public Exception ToLogicError()
     {
         byte[] exceptionBytes = new byte[Size];
         Marshal.Copy(Pointer, exceptionBytes, 0, Size);
 
         var exceptionInfo = Utils.ToObject<ExceptionInfo>(exceptionBytes);
+        if (exceptionInfo == null)
+        {
+            throw new Exception("ExceptionInfo is null");
+        }
         return new LogicError(exceptionInfo);
     }
 

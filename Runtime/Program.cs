@@ -1,30 +1,28 @@
 ﻿using CommandLine;
 using System.Runtime.InteropServices;
+using Saffron.ExternalRuntime;
 
 class Runtime
 {
     /* Declare a function in a shared library */
     [DllImport("lib_loc_logic", EntryPoint = "run")]
-    private static extern IntPtr run(IntPtr contextPtr);
+    private static extern IntPtr run(IntPtr optionPtr);
     [DllImport("lib_loc_logic", EntryPoint = "handleError")]
-    private static extern void handleError(IntPtr contextPtr, IntPtr errorPtr);
+    private static extern void handleError(IntPtr optionPtr, IntPtr errorPtr);
 
     class Options
     {
         [Option("runtime-address", Required = false, HelpText = "The gRPC address of Runtime server")]
         public required string? RuntimeAddress { get; set; }
 
-        [Option("is-ok", Default = true, HelpText = "Choose the railway type is `Run` or `HandleError`")]
-        public required bool IsOk { get; set; }
+        [Option("execution-id", Required = true, HelpText = "The Execution ID in UInt128 format")]
+        public required UInt128 ExecutionId { get; set; }
 
-        [Option("ctx", Required = true, HelpText = "Context of the Logic in Base64 encoded string")]
-        public required string Context { get; set; }
-
-        [Option("error", Required = false, HelpText = "Error of the Logic in Base64 encoded string. It is only used when `railway-type` is `HandleError`")]
-        public required string Error { get; set; }
+        [Option("task-id", Required = true, HelpText = "The Task ID in UInt128 format")]
+        public required UInt128 TaskId { get; set; }
     }
 
-    static int Main(string[] args)
+    static async Task<int> Main(string[] args)
     {
         var options = ParseArguments(args);
         if (options == null)
@@ -32,7 +30,7 @@ class Runtime
             return 1;
         }
 
-        return Execute(options);
+        return await Execute(options);
     }
 
     static Options? ParseArguments(string[] args)
@@ -62,35 +60,54 @@ class Runtime
                 Console.WriteLine("Missing agreement `runtime-address`.");
                 return null;
             }
-
-            if (options.IsOk == false && string.IsNullOrEmpty(options.Error))
-            {
-                Console.WriteLine("Missing agreement `error`.\nWhen railway-type is `HandleError`, `error` is required.");
-                return null;
-            }
+            GrpcChannelService.SetGrpcEndpoint(options.RuntimeAddress);
         }
 
         return options;
     }
 
-    static int Execute(Options options)
+    static async Task<int> Execute(Options options)
     {
-        var ctx = Marshal.StringToHGlobalAnsi(options.RuntimeAddress);
+        // initialize current TaskKey
+        Global.TaskKey = new TaskKey(options.ExecutionId, options.TaskId);
 
-        if (options.IsOk)
+        // prepare runtime option
+        var runtimeOption = new RuntimeOption
         {
-            var exPtr = run(ctx);
-            if (exPtr == IntPtr.Zero)
+            TaskKey = Global.TaskKey.ToProto(),
+            RuntimeAddress = options.RuntimeAddress,
+        };
+        var optionWrapper = new OptionWrapper(runtimeOption);
+        IntPtr optionPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OptionWrapper)));
+        Marshal.StructureToPtr(optionWrapper, optionPtr, false);
+
+        // execute Logic Railways
+        if (await Railway.IsRailwayOk())
+        {
+            var errorPtr = run(optionPtr);
+            if (errorPtr == IntPtr.Zero)
             {
                 return 0;
             }
 
-            handleError(ctx, exPtr);
+            // read error from memory pointer, and switch railway
+            var exceptionWrapper = new ExceptionWrapper(errorPtr);
+            var logicError = exceptionWrapper.ToLogicError();
+
+            await Railway.SwitchRailway(logicError.GetType().ToString(), logicError.Message);
+
+            handleError(optionPtr, errorPtr);
             return 0;
         }
         else
         {
-            handleError(ctx, Marshal.StringToHGlobalAnsi(options.Error));
+            // allocate memory for sharing error
+            var railwayError = await Railway.GetRailwayError();
+            var exWrapper = new ExceptionWrapper(railwayError);
+            IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<ExceptionWrapper>());
+            Marshal.StructureToPtr(exWrapper, errorPtr, false);
+
+            handleError(optionPtr, errorPtr);
             return 0;
         }
     }

@@ -6,7 +6,7 @@ public class GrpcChannelService
     private static string? grpcEndpoint;
     private static readonly object lockObj = new object();
 
-    private const string DefaultGrpcEndpoint = "http://localhost:5224";
+    private const string DefaultGrpcEndpoint = "http://localhost:8087";
 
     public static void SetGrpcEndpoint(string endpoint)
     {
@@ -16,19 +16,8 @@ public class GrpcChannelService
             {
                 grpcEndpoint = endpoint;
             }
-            else
-            {
-                throw new InvalidOperationException("Cannot set the gRPC endpoint after the channel has been created.");
-            }
         }
     }
-
-    // static GrpcChannelService()
-    // {
-    //     var grpcEndpoint = Environment.GetEnvironmentVariable(GrpcEndpointEnvVar) ?? DefaultGrpcEndpoint;
-    //     channel = GrpcChannel.ForAddress(grpcEndpoint);
-    // }
-
 
     public static GrpcChannel GetChannel()
     {
@@ -46,6 +35,4 @@ public class GrpcChannelService
 
         return channel;
     }
-
-    // public static GrpcChannel GetChannel() => channel;
 }

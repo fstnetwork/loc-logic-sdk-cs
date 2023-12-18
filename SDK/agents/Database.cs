@@ -9,7 +9,11 @@ public static class DatabaseAgent
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        var resp = await client.AcquireAsync(new AcquireRequest { Name = name });
+        var resp = await client.AcquireAsync(new AcquireRequest
+        {
+            TaskKey = Global.TaskKey.ToProto(),
+            Name = name
+        });
 
         return new DatabaseClient(resp.DataSourceId, resp.ConnectionId);
     }
@@ -33,6 +37,7 @@ public class DatabaseClient
 
         await client.ReleaseAsync(new ReleaseRequest
         {
+            TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
             ConnectionId = ConnectionId
         });
@@ -51,6 +56,7 @@ public class DatabaseClient
 
         var response = await client.QueryAsync(new QueryRequest
         {
+            TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
             ConnectionId = ConnectionId,
             RawSql = rawSql,
@@ -73,6 +79,7 @@ public class DatabaseClient
 
         var response = await client.QueryAsync(new QueryRequest
         {
+            TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
             ConnectionId = ConnectionId,
             RawSql = rawSql,
@@ -89,6 +96,7 @@ public class DatabaseClient
 
         await client.BeginTransactionAsync(new BeginTransactionRequest
         {
+            TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
             ConnectionId = ConnectionId
         });
@@ -101,6 +109,7 @@ public class DatabaseClient
 
         await client.CommitTransactionAsync(new CommitTransactionRequest
         {
+            TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
             ConnectionId = ConnectionId
         });
@@ -113,6 +122,7 @@ public class DatabaseClient
 
         await client.RollbackTransactionAsync(new RollbackTransactionRequest
         {
+            TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
             ConnectionId = ConnectionId
         });

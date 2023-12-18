@@ -1,51 +1,50 @@
 using System.Runtime.InteropServices;
 
-public static class RunnableGenericLogic
+public static class RunnableLogic
 {
-    public class Options
-    {
-        public required string? RuntimeAddress { get; set; }
-    }
-
     [UnmanagedCallersOnly(EntryPoint = "run")]
-    public static IntPtr Run(IntPtr contextPtr)
+    public static IntPtr Run(IntPtr optionPtr)
     {
-        var contextString = Marshal.PtrToStringAnsi(contextPtr) ?? "";
-        var ctx = new GenericContext(contextString);
+        initializeFromOption(optionPtr);
 
         try
         {
-            GenericLogic.run(ctx).GetAwaiter().GetResult();
+            Logic.run(new Context()).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
+            // allocate memory for sharing error
             var exWrapper = new ExceptionWrapper(ex);
-            IntPtr exPtr = Marshal.AllocHGlobal(Marshal.SizeOf<ExceptionWrapper>());
-            Marshal.StructureToPtr(exWrapper, exPtr, false);
-            return exPtr;
+            IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<ExceptionWrapper>());
+            Marshal.StructureToPtr(exWrapper, errorPtr, false);
+            return errorPtr;
         }
 
         return IntPtr.Zero;
     }
 
     [UnmanagedCallersOnly(EntryPoint = "handleError")]
-    public static void HandleError(IntPtr contextPtr, IntPtr errorPtr)
+    public static void HandleError(IntPtr optionPtr, IntPtr errorPtr)
     {
-        // read context
-        var contextString = Marshal.PtrToStringAnsi(contextPtr) ?? "";
-        var ctx = new GenericContext(contextString);
+        initializeFromOption(optionPtr);
 
-        // read error
+        // read error from memory pointer
         var exceptionWrapper = new ExceptionWrapper(errorPtr);
         var logicError = exceptionWrapper.ToLogicError();
 
-        GenericLogic.handleError(ctx, logicError).GetAwaiter().GetResult();
+        Logic.handleError(new Context(), logicError).GetAwaiter().GetResult();
     }
 
-    [UnmanagedCallersOnly(EntryPoint = "version")]
-    public static IntPtr Version()
+    private static void initializeFromOption(IntPtr optionPtr)
     {
-        string versionString = "0.0.1";
-        return Marshal.StringToHGlobalAnsi(versionString);
+        // read option from memory pointer
+        var optionWrapper = new OptionWrapper(optionPtr);
+        var option = optionWrapper.ToRuntimeOption();
+
+        // initialize connected runtime address
+        GrpcChannelService.SetGrpcEndpoint(option.RuntimeAddress);
+
+        // initialize current TaskKey
+        Global.TaskKey = new TaskKey(option.TaskKey);
     }
 }

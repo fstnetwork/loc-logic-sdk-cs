@@ -2,9 +2,12 @@ syntax = "proto3";
 
 package saffron.execution;
 
+import "google/protobuf/timestamp.proto";
+
 import "common/Hash.proto";
 import "common/U128.proto";
 import "common/Identity.proto";
+import "logic/Logic.proto";
 
 message TaskKey {
   saffron.common.U128 execution_id = 1;
@@ -161,4 +164,18 @@ message TaskPayload {
     EventPayload event = 2;
     MessagePayload message = 3;
   }
+}
+
+message Task {
+  TaskKey task_key = 1;
+
+  google.protobuf.Timestamp start_timestamp = 2;
+
+  saffron.common.VersionedIdentityContext data_process = 3;
+
+  optional saffron.common.VersionedIdentityContext current_logic = 4;
+  optional saffron.logic.LogicType current_logic_type = 5;
+
+  repeated saffron.common.VersionedIdentityContext executed_logics = 6;
+  repeated saffron.logic.LogicType executed_logic_types = 7;
 }

@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>LOC.Logic.Sdk</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -23,7 +23,8 @@
     <Protobuf Include="..\Protos\common\Revision.proto" ProtoRoot="..\Protos" />
     <Protobuf Include="..\Protos\common\U128.proto" ProtoRoot="..\Protos" />
     <Protobuf Include="..\Protos\common\Uuid.proto" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\exception.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\logic\Logic.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\external.proto" ProtoRoot="..\Protos" />
     <Protobuf Include="..\Protos\runtime.proto" GrpcServices="Client" ProtoRoot="..\Protos" />
     <Protobuf Include="..\Protos\Task.proto" ProtoRoot="..\Protos" />
   </ItemGroup>

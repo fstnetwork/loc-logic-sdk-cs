@@ -1,18 +1,7 @@
-using Google.Protobuf.WellKnownTypes;
 using RuntimeServer;
+using Saffron.Execution;
 
-public class GenericContext : AbstractContext
-{
-    public GenericContext(string str)
-    {
-        // TODO:
-    }
-}
-
-public class AggregatorContext : AbstractContext
-{
-    // TODO:
-}
+public class Context : AbstractContext { }
 
 public abstract class AbstractContext
 {
@@ -28,11 +17,11 @@ public abstract class AbstractContext
         return payload;
     }
 
-    public LogicTask GetTask()
+    public async Task<LogicTask> GetTask()
     {
         if (task == null)
         {
-            task = FetchTask();
+            task = await FetchTask();
         }
         return task;
     }
@@ -45,13 +34,31 @@ public abstract class AbstractContext
         var req = new FetchPayloadRequest();
         var resp = await client.FetchPayloadAsync(req);
 
-        // TODO: implement payload deserialization
-        return new HttpPayload { };
+        switch (resp.TaskPayload.PayloadCase)
+        {
+            case TaskPayload.PayloadOneofCase.Http:
+                return new HttpPayload(resp.TaskPayload.Http);
+
+            case TaskPayload.PayloadOneofCase.Event:
+                return new EventPayload { };
+
+            case TaskPayload.PayloadOneofCase.Message:
+                return new MessagePayload(resp.TaskPayload.Message);
+
+            default:
+                throw new Exception("Unknown payload type");
+        }
     }
 
-    private LogicTask FetchTask()
+    private async Task<LogicTask> FetchTask()
     {
-        return new LogicTask { };
+        var channel = GrpcChannelService.GetChannel();
+        var client = new Runtime.RuntimeClient(channel);
+
+        var req = new FetchTaskRequest();
+        var resp = await client.FetchTaskAsync(req);
+
+        return new LogicTask(resp.Task);
     }
 }
 
