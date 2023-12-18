@@ -6,7 +6,7 @@ public class RailwayError : Exception
     public override string Message { get; }
     public VersionedIdentity LogicIdentity { get; }
 
-    public RailwayError(RuntimeServer.RailwayError error): base(error.Message)
+    public RailwayError(Saffron.Runtime.RailwayError error): base(error.Message)
     {
         Name = error.Name;
         Message = error.Message;

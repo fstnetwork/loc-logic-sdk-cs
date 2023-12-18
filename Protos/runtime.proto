@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-option csharp_namespace = "RuntimeServer";
-
 package saffron.runtime;
 
 import "google/protobuf/empty.proto";

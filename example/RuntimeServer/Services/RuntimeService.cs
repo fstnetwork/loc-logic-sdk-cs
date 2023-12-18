@@ -1,7 +1,7 @@
 using Grpc.Core;
 using Google.Protobuf.WellKnownTypes;
 
-namespace RuntimeServer.Services;
+namespace Saffron.Runtime.Services;
 
 public class RuntimeService : Runtime.RuntimeBase
 {
