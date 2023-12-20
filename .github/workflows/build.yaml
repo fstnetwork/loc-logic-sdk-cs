@@ -34,14 +34,18 @@ jobs:
 
       - name: Build Runtime
         run: |
-          dotnet build --configuration Release
+          dotnet publish Runtime \
+            --configuration Release \
+            --runtime linux-x64 \
+            --no-self-contained \
+            --output out
 
       - name: Archive Build Artifacts
         uses: actions/upload-artifact@v4
         if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           name: dotnet-runtime
-          path: Runtime/bin/Release/net7.0/Runtime
+          path: out/Runtime
 
       - name: Set Tag Environment Variable
         if: startsWith(github.ref, 'refs/tags/')
@@ -52,4 +56,4 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           name: Release ${{ env.RELEASE_VERSION }}
-          files: Runtime/bin/Release/net7.0/Runtime
+          path: out/Runtime
