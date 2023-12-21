@@ -1,5 +1,7 @@
 ﻿extern alias Shared;
 
+using Shared.Utils;
+
 public static class Logic
 {
     public static async Task run(Context ctx)
@@ -7,7 +9,7 @@ public static class Logic
         Console.WriteLine("[START LOGIC]");
 
         await LoggingAgent.Log("INFO", "安安你好哇");
-        await Shared.Utils.CustomAgent.SimpleLog("安安你好哇");
+        await CustomLoggingAgent.SimpleLog("安安你好哇");
 
         var db = await DatabaseAgent.Acquire("Agent-Configuration");
         Console.WriteLine($"Reply from DatabaseAgent: {db}");
