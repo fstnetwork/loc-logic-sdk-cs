@@ -30,6 +30,13 @@ class Runtime
             return 1;
         }
 
+        Console.WriteLine($"options.RuntimeAddress: {options.RuntimeAddress}");
+        Console.WriteLine($"options.ExecutionId: {options.ExecutionId} => {Utils.EncodeUint128(options.ExecutionId)}");
+        Console.WriteLine($"options.TaskId: {options.TaskId} => {Utils.EncodeUint128(options.TaskId)}");
+
+        Console.WriteLine();
+        Console.WriteLine();
+
         return await Execute(options);
     }
 

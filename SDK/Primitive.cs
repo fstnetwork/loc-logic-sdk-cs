@@ -60,8 +60,8 @@ public class TaskKey
 
     public TaskKey(Saffron.Execution.TaskKey taskKey)
     {
-        this.ExecutionId = Utils.BytesToUInt128(taskKey.ExecutionId.Value.ToByteArray());
-        this.TaskId = Utils.BytesToUInt128(taskKey.TaskId.Value.ToByteArray());
+        this.ExecutionId = new UInt128(taskKey.ExecutionId.HighBits, taskKey.ExecutionId.LowBits);
+        this.TaskId = new UInt128(taskKey.TaskId.HighBits, taskKey.TaskId.LowBits);
     }
 
     public TaskKey(UInt128 ExecutionId, UInt128 TaskId)
@@ -74,8 +74,16 @@ public class TaskKey
     {
         return new Saffron.Execution.TaskKey
         {
-            ExecutionId = new U128 { Value = ByteString.CopyFrom(ExecutionIdBytes()) },
-            TaskId = new U128 { Value = ByteString.CopyFrom(TaskIdBytes()) }
+            ExecutionId = new U128
+            {
+                HighBits = (ulong)(this.ExecutionId >> 64),
+                LowBits = (ulong)(this.ExecutionId)
+            },
+            TaskId = new U128
+            {
+                HighBits = (ulong)(this.TaskId >> 64),
+                LowBits = (ulong)(this.TaskId)
+            }
         };
     }
 
