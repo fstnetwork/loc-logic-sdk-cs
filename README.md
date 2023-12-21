@@ -37,7 +37,7 @@ Step 2.
 publish to https://www.nuget.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.4.nupkg \
     --api-key qz2jga8pl3dvn2akksyquwcs9ygggg4exypy3bhxy6w6x6 \
     --source https://api.nuget.org/v3/index.json \
     --skip-duplicate
@@ -46,7 +46,7 @@ dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
 or publish to the test server https://int.nugettest.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.4.nupkg \
     --api-key oy2owt5lhzhy7k2txbwapz4ovzyn6r4enohleifrbvyq64 \
     --source https://int.nugettest.org/api/v2/package \
     --skip-duplicate
@@ -56,7 +56,7 @@ or publish to self-host NuGet server (e.g. BaGet)
 
 ```bash
 kubectl port-forward svc/baget 5000:80 --address 192.168.96.80
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.2.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.4.nupkg \
     --api-key ERTdMbF49MS6jaaxvXqDntly \
     --source http://192.168.96.80:5000/v3/index.json \
     --skip-duplicate
@@ -73,11 +73,36 @@ dotnet nuget add source https://int.nugettest.org/api/v2/ --name nugettest.org
 add package from specify source
 
 ```bash
-dotnet add package SDK --version 0.0.1 --source "nugettest.org"
+dotnet add package LOC.Logic.Sdk --version 0.0.4 --source "nugettest.org"
 ```
 
 download all decencies from specify source
 
 ```bash
 dotnet restore --source "nugettest.org
+```
+
+### Buggy
+
+Sometimes, NuGet cache can prevent you from successfully accessing new versions 🥲
+```
+$ dotnet add package LOC.Logic.Sdk --version 0.0.4
+  Determining projects to restore...
+  Writing /tmp/tmpPiPo5u.tmp
+info : X.509 certificate chain validation will use the fallback certificate bundle at '/usr/share/dotnet/sdk/7.0.401/trustedroots/codesignctl.pem'.
+info : X.509 certificate chain validation will use the fallback certificate bundle at '/usr/share/dotnet/sdk/7.0.401/trustedroots/timestampctl.pem'.
+info : Adding PackageReference for package 'LOC.Logic.Sdk' into project '/workspaces/loc-logic-sdk-cs/example/Shared/Shared.csproj'.
+info : Restoring packages for /workspaces/loc-logic-sdk-cs/example/Shared/Shared.csproj...
+info :   GET https://api.nuget.org/v3-flatcontainer/loc.logic.sdk/index.json
+info :   CACHE https://int.nugettest.org/api/v2/FindPackagesById()?id='LOC.Logic.Sdk'&semVerLevel=2.0.0
+info :   NotFound https://api.nuget.org/v3-flatcontainer/loc.logic.sdk/index.json 1048ms
+error: NU1102: Unable to find package LOC.Logic.Sdk with version (>= 0.0.4)
+error:   - Found 1 version(s) in nugettest.org [ Nearest version: 0.0.2 ]
+error:   - Found 0 version(s) in nuget.org
+error: Package 'LOC.Logic.Sdk' is incompatible with 'all' frameworks in project '/workspaces/loc-logic-sdk-cs/example/Shared/Shared.csproj'.
+```
+
+Please clean NuGet cache and try it agent
+```
+$ dotnet nuget locals all -c
 ```
