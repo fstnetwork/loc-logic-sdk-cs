@@ -60,65 +60,14 @@ public class TaskKey
 
     public TaskKey(Saffron.Execution.TaskKey taskKey)
     {
-        this.ExecutionId = BytesToUInt128(taskKey.ExecutionId.Value.ToByteArray());
-        this.TaskId = BytesToUInt128(taskKey.TaskId.Value.ToByteArray());
+        this.ExecutionId = Utils.BytesToUInt128(taskKey.ExecutionId.Value.ToByteArray());
+        this.TaskId = Utils.BytesToUInt128(taskKey.TaskId.Value.ToByteArray());
     }
 
     public TaskKey(UInt128 ExecutionId, UInt128 TaskId)
     {
         this.ExecutionId = ExecutionId;
         this.TaskId = TaskId;
-    }
-
-    private static UInt128 BytesToUInt128(byte[] bytes)
-    {
-        if (bytes.Length != 16)
-        {
-            throw new ArgumentException("Byte array must be exactly 16 bytes long.");
-        }
-
-        ulong upper = BitConverter.ToUInt64(bytes, 0);
-        ulong lower = BitConverter.ToUInt64(bytes, 8);
-
-        return new UInt128(upper, lower);
-    }
-
-    public byte[] ExecutionIdBytes()
-    {
-        var executionId = this.ExecutionId;
-        byte[] bytes = new byte[16];
-        for (int i = 15; i >= 0; i--)
-        {
-            bytes[i] = (byte)(executionId % 256);
-            executionId /= 256;
-        }
-        return bytes;
-    }
-
-    public byte[] TaskIdBytes()
-    {
-        var taskId = this.TaskId;
-        byte[] bytes = new byte[16];
-        for (int i = 15; i >= 0; i--)
-        {
-            bytes[i] = (byte)(taskId % 256);
-            taskId /= 256;
-        }
-        return bytes;
-    }
-
-    public string executionIdString()
-    {
-        var bytes = ExecutionIdBytes();
-        string base64 = Convert.ToBase64String(bytes);
-        return base64.Replace('+', '-').Replace('/', '_').TrimEnd('=');
-    }
-
-    public string taskIdString()
-    {
-        var bytes = TaskIdBytes();
-        string base64 = Convert.ToBase64String(bytes);
-        return base64.Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
 
     public Saffron.Execution.TaskKey ToProto()
@@ -128,5 +77,25 @@ public class TaskKey
             ExecutionId = new U128 { Value = ByteString.CopyFrom(ExecutionIdBytes()) },
             TaskId = new U128 { Value = ByteString.CopyFrom(TaskIdBytes()) }
         };
+    }
+
+    public byte[] ExecutionIdBytes()
+    {
+        return Utils.UInt128ToBytes(this.ExecutionId);
+    }
+
+    public byte[] TaskIdBytes()
+    {
+        return Utils.UInt128ToBytes(this.TaskId);
+    }
+
+    public string executionIdString()
+    {
+        return Utils.EncodeUint128(this.ExecutionId);
+    }
+
+    public string taskIdString()
+    {
+        return Utils.EncodeUint128(this.TaskId);
     }
 }

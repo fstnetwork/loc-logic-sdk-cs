@@ -69,4 +69,39 @@ public static class Utils
             return parser.ParseFrom(ms);
         }
     }
+
+    public static UInt128 BytesToUInt128(byte[] bytes)
+    {
+        if (bytes.Length != 16)
+        {
+            throw new ArgumentException("Byte array must be exactly 16 bytes long.");
+        }
+
+        if (BitConverter.IsLittleEndian)
+        {
+            Array.Reverse(bytes);
+        }
+        ulong upper = BitConverter.ToUInt64(bytes, 8);
+        ulong lower = BitConverter.ToUInt64(bytes, 0);
+
+        return new UInt128(upper, lower);
+    }
+
+    public static byte[] UInt128ToBytes(UInt128 value)
+    {
+        byte[] bytes = new byte[16];
+        for (int i = 15; i >= 0; i--)
+        {
+            bytes[i] = (byte)(value % 256);
+            value /= 256;
+        }
+        return bytes;
+    }
+
+    public static string EncodeUint128(UInt128 value)
+    {
+        var bytes = UInt128ToBytes(value);
+        string base64 = Convert.ToBase64String(bytes);
+        return base64.Replace('+', '-').Replace('/', '_').TrimEnd('=');
+    }
 }
