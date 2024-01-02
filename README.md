@@ -47,7 +47,7 @@ or publish to the test server https://int.nugettest.org/
 
 ```bash
 dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
-    --api-key oy2ityj4vs7r6lvya3hasiod5bsxnsvezh5coqcnw2cvei \
+    --api-key oy2bnoiytx7r6f3ja2rab6ovhrdc3nhenb3awkmdg6mc7m \
     --source https://int.nugettest.org/api/v2/package \
     --skip-duplicate
 ```
