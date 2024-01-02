@@ -9,7 +9,7 @@ public static class RunnableLogic
 
         try
         {
-            Logic.run(new Context()).GetAwaiter().GetResult();
+            Logic.Run(new Context()).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
@@ -32,7 +32,7 @@ public static class RunnableLogic
         var exceptionWrapper = new ExceptionWrapper(errorPtr);
         var logicError = exceptionWrapper.ToLogicError();
 
-        Logic.handleError(new Context(), logicError).GetAwaiter().GetResult();
+        Logic.HandleError(new Context(), logicError).GetAwaiter().GetResult();
     }
 
     private static void initializeFromOption(IntPtr optionPtr)

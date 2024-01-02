@@ -2,7 +2,7 @@ using Saffron.Runtime;
 
 public static class EventAgent
 {
-    public async static Task EmitEvent(List<EmitEventArgs> events)
+    public async static Task EmitEvent(IEnumerable<EmitEventArgs> events)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
@@ -164,6 +164,8 @@ public class Filter
     {
         public ulong? Gte { get; set; }
         public ulong? Lte { get; set; }
+
+        public Range() { }
     }
 
     public class Wildcard : IQuery
@@ -324,6 +326,8 @@ public class Aggregation
         }
     }
 
+    public Aggregation() { }
+
     public Aggregation(
         List<Query> Queries,
         ulong? Size,
@@ -350,13 +354,15 @@ public class Aggregation
 
 public class SearchEventRequest
 {
-    public List<Query> Queries { get; set; }
-    public List<Query> Excludes { get; set; }
-    public List<Filter> Filters { get; set; }
-    public List<Sort> Sorts { get; set; }
-    public Aggregation Aggregation { get; set; }
-    public ulong From { get; set; }
-    public ulong Size { get; set; }
+    public List<Query> Queries { get; set; } = new List<Query>();
+    public List<Query> Excludes { get; set; } = new List<Query>();
+    public List<Filter> Filters { get; set; } = new List<Filter>();
+    public List<Sort> Sorts { get; set; } = new List<Sort>();
+    public Aggregation Aggregation { get; set; } = new Aggregation { };
+    public ulong From { get; set; } = 0;
+    public ulong Size { get; set; } = 0;
+
+    public SearchEventRequest() { }
 
     public SearchEventRequest(
         List<Query> queries,
@@ -510,8 +516,6 @@ public class SearchEventResponse
     }
 }
 
-
-
 // message SearchEventWithPatternRequest {
 //   repeated saffron.event.Sequence sequences = 2;
 //   optional string max_span = 3;
@@ -550,16 +554,26 @@ public class SearchEventResponse
 //   optional string type = 3;
 // }
 
+public enum Op
+{
+    Eq = 1,
+    Ne = 2,
+    Gt = 3,
+    Lt = 4,
+    Gte = 5,
+    Lte = 6,
+}
+
 public class Condition
 {
     public string Field { get; set; }
     public string Value { get; set; }
-    public string Op { get; set; }
+    public Op Op { get; set; }
 
     public Condition(
         string field,
         string value,
-        string op
+        Op op
     )
     {
         this.Field = field;
@@ -575,13 +589,12 @@ public class Condition
             Value = Value,
             Op = Op switch
             {
-                "OP_UNSPECIFIED" => Saffron.Event.Sequence.Types.Condition.Types.Op.Unspecified,
-                "OP_EQ" => Saffron.Event.Sequence.Types.Condition.Types.Op.Eq,
-                "OP_NE" => Saffron.Event.Sequence.Types.Condition.Types.Op.Ne,
-                "OP_GT" => Saffron.Event.Sequence.Types.Condition.Types.Op.Gt,
-                "OP_LT" => Saffron.Event.Sequence.Types.Condition.Types.Op.Lt,
-                "OP_GTE" => Saffron.Event.Sequence.Types.Condition.Types.Op.Gte,
-                "OP_LTE" => Saffron.Event.Sequence.Types.Condition.Types.Op.Lte,
+                Op.Eq => Saffron.Event.Sequence.Types.Condition.Types.Op.Eq,
+                Op.Ne => Saffron.Event.Sequence.Types.Condition.Types.Op.Ne,
+                Op.Gt => Saffron.Event.Sequence.Types.Condition.Types.Op.Gt,
+                Op.Lt => Saffron.Event.Sequence.Types.Condition.Types.Op.Lt,
+                Op.Gte => Saffron.Event.Sequence.Types.Condition.Types.Op.Gte,
+                Op.Lte => Saffron.Event.Sequence.Types.Condition.Types.Op.Lte,
                 _ => Saffron.Event.Sequence.Types.Condition.Types.Op.Unspecified,
             },
         };
@@ -590,9 +603,11 @@ public class Condition
 
 public class Sequence
 {
-    public List<Condition> Conditions { get; set; }
-    public List<string> SharedFields { get; set; }
-    public string Type { get; set; }
+    public List<Condition> Conditions { get; set; } = new List<Condition>();
+    public List<string> SharedFields { get; set; } = new List<string>();
+    public string Type { get; set; } = "";
+
+    public Sequence() { }
 
     public Sequence(
         List<Condition> conditions,
@@ -620,9 +635,11 @@ public class Sequence
 
 public class SearchEventWithPatternRequest
 {
-    public List<Sequence> Sequences { get; set; }
-    public string MaxSpan { get; set; }
-    public Filter Filter { get; set; }
+    public List<Sequence> Sequences { get; set; } = new List<Sequence>();
+    public string? MaxSpan { get; set; }
+    public Filter? Filter { get; set; }
+
+    public SearchEventWithPatternRequest() { }
 
     public SearchEventWithPatternRequest(
         List<Sequence> sequences,
@@ -641,7 +658,7 @@ public class SearchEventWithPatternRequest
         {
             TaskKey = taskKey.ToProto(),
             MaxSpan = MaxSpan,
-            Filter = Filter.ToProto(),
+            Filter = Filter?.ToProto(),
         };
         request.Sequences.AddRange(Sequences.Select(s => s.ToProto()).ToList());
 

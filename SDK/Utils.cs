@@ -1,53 +1,65 @@
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
-using Newtonsoft.Json.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 public static class Utils
 {
-    public static JObject ConvertStructToJson(Struct protoStruct)
+    public static JsonNode? ConvertValueToJson(Value protoValue)
     {
-        string jsonString = JsonFormatter.Default.Format(protoStruct);
-        return JObject.Parse(jsonString);
-    }
-
-    public static JObject ConvertValueToJson(Value protoValue)
-    {
-        string jsonString = JsonFormatter.Default.Format(protoValue);
-        return JObject.Parse(jsonString);
+        JsonFormatter formatter = new JsonFormatter(JsonFormatter.Settings.Default.WithIndentation());
+        string jsonString = formatter.Format(protoValue);
+        return JsonSerializer.Deserialize<JsonNode>(jsonString);
     }
 
     public static Value ConvertObjectToValue(object? obj)
     {
-        var value = new Value();
-
         switch (obj)
         {
             case null:
-                value.NullValue = NullValue.NullValue;
-                break;
-            case int i:
-                value.NumberValue = i;
-                break;
-            case long l:
-                value.NumberValue = l;
-                break;
-            case float f:
-                value.NumberValue = f;
-                break;
-            case double d:
-                value.NumberValue = d;
-                break;
-            case bool b:
-                value.BoolValue = b;
-                break;
-            case string s:
-                value.StringValue = s;
-                break;
-            default:
-                throw new ArgumentException("Unsupported object type");
-        }
+                return Value.ForNull();
 
-        return value;
+            case int i:
+                return Value.ForNumber(i);
+
+            case long l:
+                return Value.ForNumber(l);
+
+            case float f:
+                return Value.ForNumber(f);
+
+            case double d:
+                return Value.ForNumber(d);
+
+            case bool b:
+                return Value.ForBool(b);
+
+            case string s:
+                return Value.ForString(s);
+
+            case IDictionary<string, object> dict:
+                var structValue = new Struct();
+                foreach (var kvp in dict)
+                {
+                    structValue.Fields[kvp.Key] = ConvertObjectToValue(kvp.Value);
+                }
+                return Value.ForStruct(structValue);
+
+            case IEnumerable<object> list:
+                var listValue = list.Select(ConvertObjectToValue);
+                return Value.ForList(listValue.ToArray());
+
+            default:
+                var structValue2 = new Struct();
+                System.Type type = obj.GetType();
+                foreach (PropertyInfo propertyInfo in type.GetProperties())
+                {
+                    var propertyValue = propertyInfo.GetValue(obj);
+                    structValue2.Fields[propertyInfo.Name] = ConvertObjectToValue(propertyValue);
+                }
+                return Value.ForStruct(structValue2);
+        }
     }
 
     public static byte[] ConvertToByteArray<T>(T protoStruct)

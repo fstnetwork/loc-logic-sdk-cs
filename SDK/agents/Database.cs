@@ -1,6 +1,5 @@
 ﻿using Google.Protobuf.WellKnownTypes;
 using Saffron.Runtime;
-using Newtonsoft.Json.Linq;
 
 public static class DatabaseAgent
 {
@@ -43,7 +42,7 @@ public class DatabaseClient
         });
     }
 
-    public async Task<QueryResults> Query(string rawSql, List<object>? parameters = null)
+    public async Task<QueryResults> Query(string rawSql, IEnumerable<object>? parameters = null)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
@@ -67,7 +66,7 @@ public class DatabaseClient
         return QueryResults.FromProtobuf(response);
     }
 
-    public async Task<QueryResults> Execute(string rawSql, List<object>? parameters = null)
+    public async Task<QueryResults> Execute(string rawSql, IEnumerable<object>? parameters = null)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
@@ -134,7 +133,7 @@ public class DatabaseClient
 public class QueryResults
 {
     public List<QueryResultColumn> Columns { get; set; } = new List<QueryResultColumn>();
-    public List<Dictionary<string, JObject>> Rows { get; set; } = new List<Dictionary<string, JObject>>();
+    public List<Dictionary<string, object?>> Rows { get; set; } = new List<Dictionary<string, object?>>();
 
     public static QueryResults FromProtobuf(QueryDatabaseResponse response)
     {
@@ -148,7 +147,7 @@ public class QueryResults
         // convert rows
         foreach (var row in response.Rows)
         {
-            var newRow = new Dictionary<string, JObject>(response.Columns.Count);
+            var newRow = new Dictionary<string, object?>(response.Columns.Count);
             for (int i = 0; i < response.Columns.Count; i++)
             {
                 var columnName = response.Columns[i]?.Name;

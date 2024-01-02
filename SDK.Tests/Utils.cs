@@ -1,7 +1,80 @@
 namespace SDK.Tests;
 
+using Google.Protobuf;
+using Google.Protobuf.WellKnownTypes;
+using System.Text.Json.Nodes;
+
 public class TestUtils
 {
+    [Fact]
+    public void Test_ConvertValueToObject()
+    {
+        // test string
+        var protoString = Value.ForString("Hello, World!");
+        var obj = Utils.ConvertValueToJson(protoString);
+        Assert.Equal("Hello, World!", (string)obj!);
+
+        // test number
+        var protoNumber = Value.ForNumber(123.45);
+        var obj2 = Utils.ConvertValueToJson(protoNumber);
+        Assert.Equal(123.45, (double)obj2!);
+
+        // test bool
+        var protoBoolean = Value.ForBool(true);
+        var obj3 = Utils.ConvertValueToJson(protoBoolean);
+        Assert.True((bool)obj3!);
+
+        // test null
+        var protoNull = Value.ForNull();
+        var obj4 = Utils.ConvertValueToJson(protoNull);
+        Assert.Null(obj4);
+
+        // test struct
+        var protoStruct = Value.ForStruct(new Struct
+        {
+            Fields =
+            {
+                { "key1", Value.ForString("value1") },
+                { "key2", Value.ForNumber(123) },
+                { "key3", Value.ForString("2019-08-01T00:00:00") },
+            },
+        });
+        var obj5 = Utils.ConvertValueToJson(protoStruct);
+        Assert.NotNull(obj5);
+        Assert.Equal("value1", (string)obj5!["key1"]!);
+        Assert.Equal(123, (int)obj5!["key2"]!);
+    }
+
+    [Fact]
+    public void Test_ConvertObjectToValue()
+    {
+        // test null
+        var result = Utils.ConvertObjectToValue(null);
+        Assert.Equal(Value.KindOneofCase.NullValue, result.KindCase);
+
+        // test number
+        var result2 = Utils.ConvertObjectToValue(100);
+        Assert.Equal(100, result2.NumberValue);
+
+        // test object
+        var result3 = Utils.ConvertObjectToValue(new ExampleObject { Name = "Meow", Age = 100 });
+        var expected = new Struct
+        {
+            Fields =
+            {
+                { "Name", Value.ForString("Meow") },
+                { "Age", Value.ForNumber(100) },
+            },
+        };
+        Assert.Equal(expected, result3.StructValue);
+
+        // test list
+        var list = new List<object> { "item1", "item2" };
+        var result4 = Utils.ConvertObjectToValue(list);
+        Assert.Equal("item1", result4.ListValue.Values[0].StringValue);
+        Assert.Equal("item2", result4.ListValue.Values[1].StringValue);
+    }
+
     [Fact]
     public void Test_BytesToUInt128()
     {
@@ -51,4 +124,10 @@ public class TestUtils
         var value3 = UInt128.Parse("168936194220010199234602573438346025250");
         Assert.Equal(expected3, Utils.EncodeUint128(value3));
     }
+}
+
+class ExampleObject
+{
+    public string Name { get; set; } = "";
+    public int Age { get; set; }
 }

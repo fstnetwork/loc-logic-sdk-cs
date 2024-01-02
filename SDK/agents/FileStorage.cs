@@ -3,7 +3,7 @@ using Saffron.Runtime;
 
 public static class FileStorageAgent
 {
-    public async static Task<Guid> Acquire(string name)
+    public async static Task<FileStorageClient> Acquire(string name)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
@@ -14,11 +14,11 @@ public static class FileStorageAgent
             Name = name,
         });
 
-        return new Guid(resp.AgentConfigurationId.ToByteArray());
+        return new FileStorageClient(resp.AgentConfigurationId);
     }
 }
 
-class FileStorageClient
+public class FileStorageClient
 {
     Saffron.Common.Uuid AgentConfigurationId;
 
