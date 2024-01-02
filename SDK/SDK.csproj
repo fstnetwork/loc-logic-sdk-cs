@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>LOC.Logic.Sdk</PackageId>
-    <Version>0.0.5</Version>
+    <Version>0.0.6</Version>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -18,15 +19,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="..\Protos\common\Hash.proto" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\common\Identity.proto" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\common\Revision.proto" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\common\U128.proto" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\common\Uuid.proto" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\logic\Logic.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\common\hash.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\common\identity.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\common\revision.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\common\u128.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\common\uuid.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\logic\logic.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\eventstore.proto" ProtoRoot="..\Protos" />
     <Protobuf Include="..\Protos\external.proto" ProtoRoot="..\Protos" />
     <Protobuf Include="..\Protos\runtime.proto" GrpcServices="Client" ProtoRoot="..\Protos" />
-    <Protobuf Include="..\Protos\Task.proto" ProtoRoot="..\Protos" />
+    <Protobuf Include="..\Protos\task.proto" ProtoRoot="..\Protos" />
   </ItemGroup>
 
 </Project>

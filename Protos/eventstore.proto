@@ -1,0 +1,178 @@
+syntax = "proto3";
+
+package saffron.event;
+
+import "google/protobuf/timestamp.proto";
+
+import "common/identity.proto";
+
+service EventStore {
+  rpc Emit(EmitRequest) returns (EmitResponse);
+  rpc Search(SearchRequest) returns (SearchResponse);
+  rpc SearchWithPattern(PatternRequest) returns (PatternResponse);
+}
+
+message Event {
+  saffron.common.VersionedIdentityContext data_process_identity_context = 1;
+  saffron.common.VersionedIdentityContext logic_identity_context = 2;
+  string execution_id = 3;
+  string task_id = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  string source_digital_identity = 6;
+  string target_digital_identity = 7;
+  string label_id = 8;
+  string label_name = 9;
+  uint64 sequence = 10;
+  string type = 11;
+  string meta = 12;
+}
+
+message Query {
+  message Match {
+    string value = 1;
+  }
+
+  message MatchPhrase {
+    string value = 1;
+  }
+
+  message Term {
+    string value = 1;
+  }
+
+  string field = 1;
+  oneof query {
+    Match match = 2;
+    MatchPhrase match_phrase = 3;
+    Term term = 4;
+  }
+}
+
+message Filter {
+  message Range {
+    optional uint64 gte = 1;
+    optional uint64 lte = 2;
+  }
+
+  message Wildcard {
+    string value = 1;
+  }
+
+  string field = 1;
+  oneof query {
+    Range range = 2;
+    Wildcard wildcard = 3;
+  }
+}
+
+enum SortOrder {
+  SORT_ORDER_UNSPECIFIED = 0;
+  SORT_ORDER_ASC = 1;
+  SORT_ORDER_DESC = 2;
+}
+
+message Sort {
+  string field = 1;
+  SortOrder order = 2;
+}
+
+message Aggregation {
+  message Query {
+    message Terms {
+      optional SortOrder order = 1;
+    }
+
+    message DateHistogram {
+      string interval = 1;
+      optional SortOrder order = 2;
+    }
+
+    string field = 1;
+    oneof aggregation {
+      Terms terms = 2;
+      DateHistogram date_histogram = 3;
+    }
+  }
+
+  repeated Query queries = 1;
+  optional uint64 size = 2;
+  map<string, string> after = 3;
+}
+
+message Sequence {
+  message Condition {
+    enum Op {
+      OP_UNSPECIFIED = 0;
+      OP_EQ = 1;
+      OP_NE = 2;
+      OP_GT = 3;
+      OP_LT = 4;
+      OP_GTE = 5;
+      OP_LTE = 6;
+    }
+    Op op = 1;
+    string field = 2;
+    string value = 3;
+  }
+  repeated Condition conditions = 1;
+  repeated string shared_fields = 2;
+  optional string type = 3;
+}
+
+message EmitRequest {
+  string index = 1;
+  repeated Event events = 2;
+}
+
+message EmitResponse {
+  uint64 took = 1;
+  bool errors = 2;
+}
+
+message SearchRequest {
+  string index = 1;
+  repeated Query queries = 2;
+  repeated Query excludes = 3;
+  repeated Filter filters = 4;
+  repeated Sort sorts = 5;
+  optional Aggregation aggregation = 6;
+  optional uint64 from = 7;
+  optional uint64 size = 8;
+}
+
+message AggregationResult {
+  message Bucket {
+    map<string, string> key = 1;
+    uint64 doc_count = 2;
+  }
+
+  repeated Bucket buckets = 1;
+  map<string, string> after = 2;
+}
+
+message SearchResponse {
+  uint64 took = 1;
+  uint64 count = 2;
+  uint64 total = 3;
+  repeated Event events = 4;
+  AggregationResult aggregation = 5;
+}
+
+message PatternRequest {
+  string index = 1;
+  repeated Sequence sequences = 2;
+  optional string max_span = 3;
+  optional Filter filter = 4;
+}
+
+message PatternResponse {
+  message SequenceResult {
+    repeated string join_keys = 1;
+    repeated Event events = 2;
+  }
+
+  uint64 took = 1;
+  uint64 count = 2;
+  uint64 total = 3;
+  repeated SequenceResult sequences = 4;
+}

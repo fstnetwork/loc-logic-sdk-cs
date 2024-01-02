@@ -36,7 +36,7 @@ public static class LoggingAgent
         {
             TaskKey = Global.TaskKey.ToProto(),
             Level = level,
-            Message = message
+            Message = message,
         });
     }
 }

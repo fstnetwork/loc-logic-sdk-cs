@@ -37,7 +37,7 @@ Step 2.
 publish to https://www.nuget.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.5.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
     --api-key qz2jga8pl3dvn2akksyquwcs9ygggg4exypy3bhxy6w6x6 \
     --source https://api.nuget.org/v3/index.json \
     --skip-duplicate
@@ -46,7 +46,7 @@ dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.5.nupkg \
 or publish to the test server https://int.nugettest.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.5.nupkg \
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
     --api-key oy2ityj4vs7r6lvya3hasiod5bsxnsvezh5coqcnw2cvei \
     --source https://int.nugettest.org/api/v2/package \
     --skip-duplicate
@@ -55,11 +55,10 @@ dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.5.nupkg \
 or publish to self-host NuGet server (e.g. BaGet)
 
 ```bash
-kubectl port-forward svc/baget 5000:80 --address 192.168.96.80
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.5.nupkg \
+kubectl port-forward svc/baget 8080 --address 192.168.96.80
+dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
     --api-key ERTdMbF49MS6jaaxvXqDntly \
-    --source http://192.168.96.80:5000/v3/index.json \
-    --skip-duplicate
+    --source http://192.168.96.80:8080/v3/index.json
 ```
 
 ## Download from difference NuGet source
@@ -73,18 +72,19 @@ dotnet nuget add source https://int.nugettest.org/api/v2/ --name nugettest.org
 add package from specify source
 
 ```bash
-dotnet add package LOC.Logic.Sdk --version 0.0.5 --source "nugettest.org"
+dotnet add package LOC.Logic.Sdk --version 0.0.6 --source "nugettest.org"
 ```
 
 download all decencies from specify source
 
 ```bash
-dotnet restore --source "nugettest.org
+dotnet restore --source "nugettest.org"
 ```
 
 ### Buggy
 
 Sometimes, NuGet cache can prevent you from successfully accessing new versions 🥲
+
 ```
 $ dotnet add package LOC.Logic.Sdk --version 0.0.3
   Determining projects to restore...
@@ -103,6 +103,7 @@ error: Package 'LOC.Logic.Sdk' is incompatible with 'all' frameworks in project 
 ```
 
 Please clean NuGet cache and try it agent
+
 ```
-$ dotnet nuget locals all -c
+dotnet nuget locals all -c
 ```

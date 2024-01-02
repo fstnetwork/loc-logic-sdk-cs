@@ -4,13 +4,19 @@ using Newtonsoft.Json.Linq;
 
 public static class Utils
 {
-    public static JObject ConvertStructToJson(Struct gRPCStruct)
+    public static JObject ConvertStructToJson(Struct protoStruct)
     {
-        string jsonString = JsonFormatter.Default.Format(gRPCStruct);
+        string jsonString = JsonFormatter.Default.Format(protoStruct);
         return JObject.Parse(jsonString);
     }
 
-    public static Value ConvertObjectToValue(object obj)
+    public static JObject ConvertValueToJson(Value protoValue)
+    {
+        string jsonString = JsonFormatter.Default.Format(protoValue);
+        return JObject.Parse(jsonString);
+    }
+
+    public static Value ConvertObjectToValue(object? obj)
     {
         var value = new Value();
 
@@ -44,12 +50,12 @@ public static class Utils
         return value;
     }
 
-    public static byte[] ConvertToByteArray<T>(T gRPCStruct)
+    public static byte[] ConvertToByteArray<T>(T protoStruct)
         where T : IMessage<T>
     {
         using (var ms = new MemoryStream())
         {
-            gRPCStruct.WriteTo(ms);
+            protoStruct.WriteTo(ms);
             return ms.ToArray();
         }
     }

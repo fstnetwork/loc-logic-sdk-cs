@@ -1,6 +1,6 @@
 using Saffron.Runtime;
 
-public static class Railway
+public static class LogicRailway
 {
     public async static Task<bool> IsRailwayOk()
     {
@@ -9,7 +9,7 @@ public static class Railway
 
         var resp = await client.IsRailwayOkAsync(new IsRailwayOkRequest
         {
-            TaskKey = Global.TaskKey.ToProto()
+            TaskKey = Global.TaskKey.ToProto(),
         });
 
         return resp.Value;
@@ -35,7 +35,7 @@ public static class Railway
 
         var resp = await client.GetRailwayErrorAsync(new GetRailwayErrorRequest
         {
-            TaskKey = Global.TaskKey.ToProto()
+            TaskKey = Global.TaskKey.ToProto(),
         });
         if (resp.Error == null)
         {

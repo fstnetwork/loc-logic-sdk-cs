@@ -9,10 +9,10 @@ public static class DatabaseAgent
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        var resp = await client.AcquireAsync(new AcquireRequest
+        var resp = await client.AcquireDatabaseAsync(new AcquireDatabaseRequest
         {
             TaskKey = Global.TaskKey.ToProto(),
-            Name = name
+            Name = name,
         });
 
         return new DatabaseClient(resp.DataSourceId, resp.ConnectionId);
@@ -35,26 +35,27 @@ public class DatabaseClient
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        await client.ReleaseAsync(new ReleaseRequest
+        await client.ReleaseDatabaseAsync(new ReleaseDatabaseRequest
         {
             TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
-            ConnectionId = ConnectionId
+            ConnectionId = ConnectionId,
         });
     }
 
-    public async Task<QueryResults> Query(string rawSql, List<object> parameters)
+    public async Task<QueryResults> Query(string rawSql, List<object>? parameters = null)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
+        parameters ??= new List<object>();
         var parameterList = new ListValue();
         foreach (var param in parameters)
         {
             parameterList.Values.Add(Utils.ConvertObjectToValue(param));
         }
 
-        var response = await client.QueryAsync(new QueryRequest
+        var response = await client.QueryDatabaseAsync(new QueryDatabaseRequest
         {
             TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
@@ -66,18 +67,19 @@ public class DatabaseClient
         return QueryResults.FromProtobuf(response);
     }
 
-    public async Task<QueryResults> Execute(string rawSql, List<object> parameters)
+    public async Task<QueryResults> Execute(string rawSql, List<object>? parameters = null)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
+        parameters ??= new List<object>();
         var parameterList = new ListValue();
         foreach (var param in parameters)
         {
             parameterList.Values.Add(Utils.ConvertObjectToValue(param));
         }
 
-        var response = await client.QueryAsync(new QueryRequest
+        var response = await client.QueryDatabaseAsync(new QueryDatabaseRequest
         {
             TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
@@ -98,7 +100,7 @@ public class DatabaseClient
         {
             TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
-            ConnectionId = ConnectionId
+            ConnectionId = ConnectionId,
         });
     }
 
@@ -111,7 +113,7 @@ public class DatabaseClient
         {
             TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
-            ConnectionId = ConnectionId
+            ConnectionId = ConnectionId,
         });
     }
 
@@ -124,7 +126,7 @@ public class DatabaseClient
         {
             TaskKey = Global.TaskKey.ToProto(),
             DataSourceId = DataSourceId,
-            ConnectionId = ConnectionId
+            ConnectionId = ConnectionId,
         });
     }
 }
@@ -134,7 +136,7 @@ public class QueryResults
     public List<QueryResultColumn> Columns { get; set; } = new List<QueryResultColumn>();
     public List<Dictionary<string, JObject>> Rows { get; set; } = new List<Dictionary<string, JObject>>();
 
-    public static QueryResults FromProtobuf(QueryResponse response)
+    public static QueryResults FromProtobuf(QueryDatabaseResponse response)
     {
         if (response == null)
         {
@@ -149,10 +151,10 @@ public class QueryResults
             var newRow = new Dictionary<string, JObject>(response.Columns.Count);
             for (int i = 0; i < response.Columns.Count; i++)
             {
-                var column = response.Columns[i];
-                if (column?.Name != null)
+                var columnName = response.Columns[i]?.Name;
+                if (columnName != null)
                 {
-                    newRow[column.Name] = Utils.ConvertStructToJson(row.Inner[i]);
+                    newRow[columnName] = Utils.ConvertValueToJson(row.Values[i]);
                 }
             }
             queryResults.Rows.Add(newRow);
@@ -169,7 +171,7 @@ public class QueryResults
             queryResults.Columns.Add(new QueryResultColumn
             {
                 Name = column.Name,
-                Type = column.Type
+                Type = column.Type,
             });
         }
 

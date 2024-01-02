@@ -15,7 +15,7 @@ public class RuntimeService : Runtime.RuntimeBase
             Value = this.isRailwayOk,
         });
     }
-    
+
     public override Task<Empty> SwitchRailway(RailwaySwitchRequest request, ServerCallContext context)
     {
         this.isRailwayOk = false;
@@ -43,9 +43,9 @@ public class RuntimeService : Runtime.RuntimeBase
         return Task.FromResult(new Empty());
     }
 
-    public override Task<AcquireResponse> Acquire(AcquireRequest request, ServerCallContext context)
+    public override Task<AcquireDatabaseResponse> AcquireDatabase(AcquireDatabaseRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call Acquire");
-        return Task.FromResult(new AcquireResponse { });
+        return Task.FromResult(new AcquireDatabaseResponse { });
     }
 }

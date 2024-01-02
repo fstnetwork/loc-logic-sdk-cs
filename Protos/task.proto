@@ -4,10 +4,10 @@ package saffron.execution;
 
 import "google/protobuf/timestamp.proto";
 
-import "common/Hash.proto";
-import "common/U128.proto";
-import "common/Identity.proto";
-import "logic/Logic.proto";
+import "common/hash.proto";
+import "common/u128.proto";
+import "common/identity.proto";
+import "logic/logic.proto";
 
 message TaskKey {
   saffron.common.U128 execution_id = 1;

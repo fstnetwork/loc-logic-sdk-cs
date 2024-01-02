@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package saffron.externalRuntime;
 
-import "Task.proto";
+import "task.proto";
 
 message RuntimeOption {
   saffron.execution.TaskKey task_key = 1;

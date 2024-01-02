@@ -134,7 +134,8 @@ public class Subscriber
 {
     public KafkaSubscriber Kafka { get; set; }
 
-    public Subscriber(TaskPayload.Types.MessagePayload.Types.Subscriber subscriber) {
+    public Subscriber(TaskPayload.Types.MessagePayload.Types.Subscriber subscriber)
+    {
         this.Kafka = new KafkaSubscriber(subscriber.Kafka);
     }
 }
