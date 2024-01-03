@@ -124,6 +124,17 @@ public class TestUtils
         var value3 = UInt128.Parse("168936194220010199234602573438346025250");
         Assert.Equal(expected3, Utils.EncodeUint128(value3));
     }
+
+    [Fact]
+    public void Test_ConvertUuidToGuid()
+    {
+        var expected1 = new Guid("78b9906e-8bf6-41cc-930c-539a4abfcec0");
+        var value1 = new Saffron.Common.Uuid {
+            HighBits = 8699142959711797708,
+            LowBits = 10595935945440087744,
+        };
+        Assert.Equal(expected1, Utils.ConvertUuidToGuid(value1));
+    }
 }
 
 class ExampleObject

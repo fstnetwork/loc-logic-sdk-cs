@@ -17,7 +17,7 @@ public static class LocalStorageAgent
         return new StorageValue(resp.Value);
     }
 
-    public async static Task Put(string key, StorageValue value, ulong? timeoutSeconds)
+    public async static Task Put(string key, StorageValue value, ulong? timeoutSeconds = null)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);

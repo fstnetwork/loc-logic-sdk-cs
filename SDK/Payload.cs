@@ -1,8 +1,36 @@
 using Saffron.Execution;
 
-public abstract class Payload { }
+public class Payload
+{
+    public HttpPayload? Http { get; set; }
+    public MessagePayload? Message { get; set; }
+    public EventPayload? Event { get; set; }
 
-public class HttpPayload : Payload
+    public Payload() { }
+
+    public Payload(TaskPayload taskPayload)
+    {
+        switch (taskPayload.PayloadCase)
+        {
+            case TaskPayload.PayloadOneofCase.Http:
+                Http = new HttpPayload(taskPayload.Http);
+                break;
+
+            case TaskPayload.PayloadOneofCase.Event:
+                Event = new EventPayload { };
+                break;
+
+            case TaskPayload.PayloadOneofCase.Message:
+                Message = new MessagePayload(taskPayload.Message);
+                break;
+
+            default:
+                throw new Exception("Unknown payload type");
+        }
+    }
+}
+
+public class HttpPayload
 {
     public IdentityContext ApiGatewayIdentityContext { get; set; }
     public IdentityContext ApiRouteIdentityContext { get; set; }
@@ -22,7 +50,7 @@ public class HttpPayload : Payload
     }
 }
 
-public class MessagePayload : Payload
+public class MessagePayload
 {
     public IdentityContext ClientIdentityContext { get; set; }
     public byte[] Data { get; set; }
@@ -45,7 +73,7 @@ public class MessagePayload : Payload
     }
 }
 
-public class EventPayload : Payload { }
+public class EventPayload { }
 
 public class Peer
 {

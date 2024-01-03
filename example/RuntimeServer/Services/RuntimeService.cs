@@ -8,6 +8,115 @@ public class RuntimeService : Runtime.RuntimeBase
     private bool isRailwayOk { get; set; } = true;
     private RailwayError? error { get; set; } = null;
 
+    // Primitive
+    public override Task<FetchPayloadResponse> FetchPayload(FetchPayloadRequest request, ServerCallContext context)
+    {
+        return Task.FromResult(new FetchPayloadResponse
+        {
+            TaskPayload = new Execution.TaskPayload
+            {
+                Http = new Execution.TaskPayload.Types.HttpPayload
+                {
+                    ApiGatewayIdentityContext = new Common.NonVersionedIdentityContext
+                    {
+                        Name = "fake-api-gateway",
+                        Id = Utils.ZeroUuid(),
+                    },
+                    ApiRouteIdentityContext = new Common.NonVersionedIdentityContext
+                    {
+                        Name = "fake-api-route",
+                        Id = Utils.ZeroUuid(),
+                    },
+                    Source = new Execution.TaskPayload.Types.HttpPayload.Types.Peer
+                    {
+                        Address = new Execution.TaskPayload.Types.HttpPayload.Types.Address
+                        {
+                            SocketAddress = new Execution.TaskPayload.Types.HttpPayload.Types.SocketAddress
+                            {
+                                Protocol = Execution.TaskPayload.Types.HttpPayload.Types.Protocol.Tcp,
+                                Address = Google.Protobuf.ByteString.CopyFrom(new byte[] { 127, 0, 0, 1 }),
+                                Port = 8080,
+                            }
+                        }
+                    },
+                    Destination = new Execution.TaskPayload.Types.HttpPayload.Types.Peer
+                    {
+                        Address = new Execution.TaskPayload.Types.HttpPayload.Types.Address
+                        {
+                            SocketAddress = new Execution.TaskPayload.Types.HttpPayload.Types.SocketAddress
+                            {
+                                Protocol = Execution.TaskPayload.Types.HttpPayload.Types.Protocol.Tcp,
+                                Address = Google.Protobuf.ByteString.CopyFrom(new byte[] { 127, 0, 0, 1 }),
+                                Port = 8200,
+                            }
+                        }
+                    },
+                    RequestId = "fake-request-id",
+                    Request = new Execution.TaskPayload.Types.HttpPayload.Types.HttpRequest
+                    {
+                        Scheme = "http",
+                        Method = "GET",
+                        Path = "/api/v1/test-external-runtime",
+                        Query = "foo=bar&baz=qux",
+                        Version = Execution.TaskPayload.Types.HttpPayload.Types.Version.Http11,
+                        Headers =
+                        {
+                            new Execution.TaskPayload.Types.HttpPayload.Types.HttpRequest.Types.Header
+                            {
+                                Name = Google.Protobuf.ByteString.CopyFromUtf8("Content-Type"),
+                                Value = Google.Protobuf.ByteString.CopyFromUtf8("application/json"),
+                            },
+                        },
+                        Host = "localhost",
+                        Body = new Execution.TaskPayload.Types.Data
+                        {
+                            Bytes = Google.Protobuf.ByteString.CopyFromUtf8(@"{
+                                ""foo"": ""bar"",
+                                ""baz"": ""qux"",
+                            }"),
+                        },
+                    },
+                },
+            },
+        });
+    }
+
+    public override Task<FetchTaskResponse> FetchTask(FetchTaskRequest request, ServerCallContext context)
+    {
+        return Task.FromResult(new FetchTaskResponse
+        {
+            Task = new Saffron.Execution.Task
+            {
+                TaskKey = new Saffron.Execution.TaskKey
+                {
+                    ExecutionId = Utils.ZeroU128(),
+                    TaskId = Utils.ZeroU128(),
+                },
+                StartTimestamp = Timestamp.FromDateTime(DateTime.UtcNow),
+                DataProcess = new Saffron.Common.VersionedIdentityContext
+                {
+                    Name = "fake-data-process",
+                    Id = new Saffron.Common.VersionedIdentity
+                    {
+                        PermanentIdentity = Utils.ZeroUuid(),
+                        Revision = Utils.Revision(1),
+                    },
+                },
+                CurrentLogic = new Saffron.Common.VersionedIdentityContext
+                {
+                    Name = "fake-current-logic",
+                    Id = new Saffron.Common.VersionedIdentity
+                    {
+                        PermanentIdentity = Utils.ZeroUuid(),
+                        Revision = Utils.Revision(1),
+                    },
+                },
+                CurrentLogicType = Saffron.Logic.LogicType.Generic,
+            },
+        });
+    }
+
+    // Logic Railway
     public override Task<BoolValue> IsRailwayOk(IsRailwayOkRequest request, ServerCallContext context)
     {
         return Task.FromResult(new BoolValue
@@ -36,13 +145,7 @@ public class RuntimeService : Runtime.RuntimeBase
         });
     }
 
-    public override Task<Empty> Log(LogRequest request, ServerCallContext context)
-    {
-        Console.WriteLine($"[{request.Level}] {request.Message}");
-
-        return Task.FromResult(new Empty());
-    }
-
+    // Database Agent
     public override Task<AcquireDatabaseResponse> AcquireDatabase(AcquireDatabaseRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call AcquireDatabase");
@@ -110,6 +213,14 @@ public class RuntimeService : Runtime.RuntimeBase
     public override Task<Empty> RollbackTransaction(RollbackTransactionRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call RollbackTransaction");
+        return Task.FromResult(new Empty());
+    }
+
+    // Logging Agent
+    public override Task<Empty> Log(LogRequest request, ServerCallContext context)
+    {
+        Console.WriteLine($"[{request.Level}] {request.Message}");
+
         return Task.FromResult(new Empty());
     }
 

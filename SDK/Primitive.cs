@@ -1,4 +1,3 @@
-using Google.Protobuf;
 using Saffron.Common;
 
 public class VersionedIdentityContext
@@ -12,7 +11,7 @@ public class VersionedIdentityContext
     public VersionedIdentityContext(Saffron.Common.VersionedIdentityContext ctx)
     {
         this.Name = ctx.Name;
-        this.PermanentIdentity = new Guid(ctx.Id.PermanentIdentity.ToByteArray());
+        this.PermanentIdentity = Utils.ConvertUuidToGuid(ctx.Id.PermanentIdentity);
         this.Revision = ctx.Id.Revision.Value;
     }
 }
@@ -26,7 +25,7 @@ public class IdentityContext
     public IdentityContext(NonVersionedIdentityContext ctx)
     {
         this.Name = ctx.Name;
-        this.PermanentIdentity = new Guid(ctx.Id.ToByteArray());
+        this.PermanentIdentity = Utils.ConvertUuidToGuid(ctx.Id);
     }
 }
 

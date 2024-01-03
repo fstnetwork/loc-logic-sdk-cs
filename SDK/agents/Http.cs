@@ -14,7 +14,7 @@ public static class HttpAgent
             Name = name,
         });
 
-        return new Guid(resp.AgentConfigurationId.ToByteArray());
+        return Utils.ConvertUuidToGuid(resp.AgentConfigurationId);
     }
 }
 

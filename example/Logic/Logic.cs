@@ -5,17 +5,25 @@ using System.Text;
 
 public static class Logic
 {
-    public static async Task run(Context ctx)
-    {
-        await Run(ctx);
-    }
-
     public static async Task Run(Context ctx)
     {
         await LoggingAgent.Info("[START LOGIC]");
 
+        var taskKey = (await ctx.GetTask()).TaskKey;
+        await LoggingAgent.Debug($"execution_id={taskKey.ExecutionId}, task_id={taskKey.TaskId}");
+
+        var payload = await ctx.GetPayload();
+        var httpRequest = payload.Http!.Request;
+        await LoggingAgent.Debug($"REQUEST: [{httpRequest.Method}] {httpRequest.Path}?{httpRequest.Query}");
+
         await CustomLoggingAgent.SimpleLog("Custom logging agent");
+
         await DatabaseAgentExample();
+        await EventAgentExample();
+        await FileStorageAgentExample();
+        await HttpAgentExample();
+        await LocalStorageAgentExample();
+        await SessionStorageAgentExample();
 
         await LoggingAgent.Info("[END LOGIC]");
     }
@@ -32,7 +40,7 @@ public static class Logic
 
     private static async Task DatabaseAgentExample()
     {
-        var db = await DatabaseAgent.Acquire("Agent-Configuration");
+        var db = await DatabaseAgent.Acquire("database");
 
         // select SQL statement
         var result = await db.Query("SELECT id, message, timestamp FROM logs;");
@@ -96,7 +104,7 @@ public static class Logic
 
     private static async Task FileStorageAgentExample()
     {
-        var fileStorage = await FileStorageAgent.Acquire("Agent-Configuration");
+        var fileStorage = await FileStorageAgent.Acquire("file-storage");
 
         // create directory
         await fileStorage.CreateDirAll("file-storage/example");
@@ -119,10 +127,25 @@ public static class Logic
         await fileStorage.DeleteFile("file-storage/example/meow.txt");
     }
 
+    private static async Task HttpAgentExample()
+    {
+        var http = await HttpAgent.Acquire("http");
+    }
+
+    private static async Task LocalStorageAgentExample()
+    {
+        await LocalStorageAgent.Put("doge", StorageValue.FromString("doge"), 300);
+
+        var value = await LocalStorageAgent.Get("doge");
+        await LoggingAgent.Info($"Set LocalStorage doge={value.StringValue}");
+    }
+
     private static async Task SessionStorageAgentExample()
     {
         await SessionStorageAgent.Put("meow", StorageValue.FromString("meow"));
 
-        var _value = await SessionStorageAgent.Get("meow");
+        var value = await SessionStorageAgent.Get("meow");
+        await LoggingAgent.Info($"Set SessionStorage meow={value.StringValue}");
     }
+
 }

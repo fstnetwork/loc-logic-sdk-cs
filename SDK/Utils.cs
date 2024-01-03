@@ -122,4 +122,31 @@ public static class Utils
         string base64 = Convert.ToBase64String(bytes);
         return base64.Replace('+', '-').Replace('/', '_').TrimEnd('=');
     }
+
+    public static Guid ConvertUuidToGuid(Saffron.Common.Uuid uuid)
+    {
+        // Variant 2 UUIDs, historically used in Microsoft's COM/OLE libraries,
+        // use a little-endian format, but appear mixed-endian with the first three
+        // components of the UUID as little-endian and last two big-endian, due to
+        // the missing byte dashes when formatted as a string.
+        // For example, `00112233-4455-6677-8899-aabbccddeeff` is encoded as the bytes
+        // `33 22 11 00 55 44 77 66 88 99 aa bb cc dd ee ff`.
+        byte[] bytes = new byte[16];
+        for (int i = 7; i >= 0; i--)
+        {
+            bytes[i] = (byte)(uuid.HighBits % 256);
+            uuid.HighBits /= 256;
+        }
+        (bytes[0], bytes[1], bytes[2], bytes[3]) = (bytes[3], bytes[2], bytes[1], bytes[0]);
+        (bytes[4], bytes[5]) = (bytes[5], bytes[4]);
+        (bytes[6], bytes[7]) = (bytes[7], bytes[6]);
+
+        for (int i = 7; i >= 0; i--)
+        {
+            bytes[i + 8] = (byte)(uuid.LowBits % 256);
+            uuid.LowBits /= 256;
+        }
+
+        return new Guid(bytes);
+    }
 }
