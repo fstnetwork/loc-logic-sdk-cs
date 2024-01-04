@@ -2,6 +2,7 @@
 
 using Shared.Utils;
 using System.Text;
+using System.Text.Json;
 
 public static class Logic
 {
@@ -70,7 +71,7 @@ public static class Logic
 
         await EventAgent.SearchEvent(new SearchEventRequest
         {
-            Queries = new List<Query> {
+            Queries = {
                 new Query("source_digital_identity", new Query.Match("sourceDigitalIdentity")),
             },
             Size = 10,
@@ -78,15 +79,15 @@ public static class Logic
 
         await EventAgent.SearchEventWithPattern(new SearchEventWithPatternRequest
         {
-            Sequences = new List<Sequence> {
+            Sequences = {
                 new Sequence {
-                    Conditions = new List<Condition> {
+                    Conditions = {
                         new Condition("source_digital_identity", "sourceDigitalIdentity", Op.Eq),
                         new Condition("label_id", "label_3", Op.Ne),
                     },
                 },
                 new Sequence {
-                    Conditions = new List<Condition> {
+                    Conditions = {
                         new Condition("label_id", "label_2", Op.Eq),
                     },
                 },
@@ -129,7 +130,29 @@ public static class Logic
 
     private static async Task HttpAgentExample()
     {
-        var http = await HttpAgent.Acquire("http");
+        var client = await HttpAgent.Acquire("http");
+
+        // send by string
+        var httpResponse = await client.Send("/case1");
+        httpResponse.EnsureSuccessStatusCode(); // 200
+        if (httpResponse.Content != null)
+        {
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            await LoggingAgent.Info(responseContent);
+        }
+
+        // send by request with header
+        var req = new SendHttpRequest("/case2", new StringContent("some body"));
+        req.Headers.Add("X-Loc-Key", "meow");
+        await client.Send(req);
+
+        // send by request with JSON body
+        var stringPayload = JsonSerializer.Serialize(new Dictionary<string, string> {
+            { "key", "value" },
+            { "key2", "value2" },
+        });
+        var stringContent = new StringContent(stringPayload, Encoding.UTF8, "application/json");
+        await client.Post(new SendHttpRequest("/case3", stringContent));
     }
 
     private static async Task LocalStorageAgentExample()

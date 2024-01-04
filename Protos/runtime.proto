@@ -49,6 +49,7 @@ service Runtime {
 
   // HTTP Agent
   rpc AcquireHttp(AcquireHttpRequest) returns (AcquireHttpResponse);
+  rpc SendHttp(SendHttpRequest) returns (SendHttpResponse);
 
   // LocalStorage Agent
   rpc LocalStorageGet(LocalStorageGetRequest) returns (LocalStorageGetResponse);
@@ -312,6 +313,24 @@ message AcquireHttpRequest {
 
 message AcquireHttpResponse {
   saffron.common.Uuid agent_configuration_id = 1;
+}
+
+message SendHttpRequest {
+  saffron.execution.TaskKey task_key = 1;
+  saffron.common.Uuid configuration_id = 2;
+  string path = 3;
+  string method = 4;
+  map<string, string> headers = 5;
+  optional bytes body = 6;
+  uint64 body_length = 7;
+}
+
+message SendHttpResponse {
+  uint32 status = 1;
+  map<string, string> headers = 2;
+  string url = 3;
+  bytes body_stream = 4;
+  uint64 content_length = 5;
 }
 
 // LocalStorage Agent

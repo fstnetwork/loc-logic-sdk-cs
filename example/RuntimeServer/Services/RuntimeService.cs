@@ -1,5 +1,6 @@
 using Grpc.Core;
 using Google.Protobuf.WellKnownTypes;
+using Saffron.Common;
 
 namespace Saffron.Runtime.Services;
 
@@ -325,6 +326,44 @@ public class RuntimeService : Runtime.RuntimeBase
             },
         };
         return Task.FromResult(resp);
+    }
+
+    // Http Agent
+    public override Task<AcquireHttpResponse> AcquireHttp(AcquireHttpRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call AcquireHttp");
+        return Task.FromResult(new AcquireHttpResponse {
+            AgentConfigurationId = Utils.ZeroUuid(),
+        });
+    }
+
+    public override Task<SendHttpResponse> SendHttp(SendHttpRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SendHttp");
+
+        Console.WriteLine($"***** [{request.Method}] {request.Path} *****");
+        Console.WriteLine("Headers:");
+        foreach (var header in request.Headers)
+        {
+            Console.WriteLine($"\t{header.Key}={header.Value}");
+        }
+        Console.WriteLine($"Body:\n\t{ System.Text.Encoding.UTF8.GetString(request.Body.ToByteArray())}");
+        Console.WriteLine();
+
+        return Task.FromResult(new SendHttpResponse
+        {
+            Status = 200,
+            Headers = {
+                { "Content-Type", "application/json" },
+                { "Server", "MockRuntime/0.0.0" },
+            },
+            Url = $"https://example.com/{request.Path}",
+            BodyStream = Google.Protobuf.ByteString.CopyFromUtf8(@"{
+                ""foo"": ""bar"",
+                ""baz"": ""qux"",
+            }"),
+            ContentLength = 100,
+        });
     }
 
     // Logging Agent
