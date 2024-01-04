@@ -216,6 +216,117 @@ public class RuntimeService : Runtime.RuntimeBase
         return Task.FromResult(new Empty());
     }
 
+    // Event Agent
+    public override Task<Empty> EmitEvent(EmitEventRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call EmitEvent");
+        return Task.FromResult(new Empty());
+    }
+
+    public override Task<SearchEventResponse> SearchEvent(SearchEventRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SearchEvent");
+        var resp = new SearchEventResponse
+        {
+            Took = 10,
+            Count = 1,
+            Total = 2,
+            Events = {
+                new Saffron.Event.Event {
+                    DataProcessIdentityContext = new Saffron.Common.VersionedIdentityContext
+                    {
+                        Name = "dataProcessName",
+                        Id = new Saffron.Common.VersionedIdentity
+                        {
+                            PermanentIdentity = Utils.ZeroUuid(),
+                            Revision = Utils.Revision(1),
+                        },
+                    },
+                    LogicIdentityContext = new Saffron.Common.VersionedIdentityContext
+                    {
+                        Name = "logicName",
+                        Id = new Saffron.Common.VersionedIdentity
+                        {
+                            PermanentIdentity = Utils.ZeroUuid(),
+                            Revision = Utils.Revision(1),
+                        },
+                    },
+                    ExecutionId = "execution_id",
+                    TaskId = "task_id",
+                    Timestamp = Timestamp.FromDateTime(DateTime.UtcNow),
+                    SourceDigitalIdentity = "sourceDigitalIdentity",
+                    TargetDigitalIdentity = "targetDigitalIdentity",
+                    LabelId = "labelId",
+                    LabelName = "labelName",
+                    Sequence = 1,
+                    Type = "default",
+                    Meta = "meta",
+                },
+            },
+            Aggregation = new Saffron.Event.AggregationResult
+            {
+                Buckets = {
+                    new Saffron.Event.AggregationResult.Types.Bucket
+                    {
+                        Key = {},
+                        DocCount = 0,
+                    },
+                },
+                After = { },
+            },
+        };
+        return Task.FromResult(resp);
+    }
+
+    public override Task<SearchEventWithPatternResponse> SearchEventWithPattern(SearchEventWithPatternRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SearchEventWithPattern");
+        var resp = new SearchEventWithPatternResponse
+        {
+            Took = 10,
+            Count = 1,
+            Total = 2,
+            Sequences = {
+                new Saffron.Runtime.SearchEventWithPatternResponse.Types.SequenceResult {
+                    JoinKeys = { "join_key" },
+                    Events = {
+                        new Saffron.Event.Event {
+                            DataProcessIdentityContext = new Saffron.Common.VersionedIdentityContext
+                            {
+                                Name = "dataProcessName",
+                                Id = new Saffron.Common.VersionedIdentity
+                                {
+                                    PermanentIdentity = Utils.ZeroUuid(),
+                                    Revision = Utils.Revision(1),
+                                },
+                            },
+                            LogicIdentityContext = new Saffron.Common.VersionedIdentityContext
+                            {
+                                Name = "logicName",
+                                Id = new Saffron.Common.VersionedIdentity
+                                {
+                                    PermanentIdentity = Utils.ZeroUuid(),
+                                    Revision = Utils.Revision(1),
+                                },
+                            },
+                            ExecutionId = "execution_id",
+                            TaskId = "task_id",
+                            Timestamp = Timestamp.FromDateTime(DateTime.UtcNow),
+                            SourceDigitalIdentity = "sourceDigitalIdentity",
+                            TargetDigitalIdentity = "targetDigitalIdentity",
+                            LabelId = "labelId",
+                            LabelName = "labelName",
+                            Sequence = 1,
+                            Type = "default",
+                            Meta = "meta",
+                        },
+                    },
+                },
+            },
+        };
+        return Task.FromResult(resp);
+    }
+
     // Logging Agent
     public override Task<Empty> Log(LogRequest request, ServerCallContext context)
     {

@@ -116,10 +116,10 @@ message TaskPayload {
 
     // NOTE: we can't get this because of using 3rd api gateway
     // The source of a network activity
-    Peer source = 3;
+    optional Peer source = 3;
 
     // The destination of a network activity
-    Peer destination = 4;
+    optional Peer destination = 4;
 
     // Represents an HTTP request id.
     string request_id = 5;

@@ -21,7 +21,7 @@ public static class EventAgent
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        var req = search.ToProto(Global.TaskKey);
+        var req = search.ToProto();
         var resp = await client.SearchEventAsync(req);
 
         return new SearchEventResponse(resp);
@@ -32,7 +32,7 @@ public static class EventAgent
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
 
-        var req = search.ToProto(Global.TaskKey);
+        var req = search.ToProto();
         var resp = await client.SearchEventWithPatternAsync(req);
 
         return new SearchEventWithPatternResponse(resp);
@@ -215,9 +215,8 @@ public class Filter
 
 public enum SortOrder
 {
-    SortOrderUnspecified = 0,
-    SortOrderAsc = 1,
-    SortOrderDesc = 2
+    Asc = 1,
+    Desc = 2
 }
 
 public class Sort
@@ -238,9 +237,9 @@ public class Sort
             Field = Field,
             Order = Order switch
             {
-                SortOrder.SortOrderAsc => Saffron.Event.SortOrder.Asc,
-                SortOrder.SortOrderDesc => Saffron.Event.SortOrder.Desc,
-                _ => Saffron.Event.SortOrder.Unspecified,
+                SortOrder.Asc => Saffron.Event.SortOrder.Asc,
+                SortOrder.Desc => Saffron.Event.SortOrder.Desc,
+                _ => Saffron.Event.SortOrder.Asc,
             },
         };
     }
@@ -262,6 +261,13 @@ public class Aggregation
         public class Terms : IAggregation
         {
             public SortOrder? Order { get; set; }
+
+            public Terms() { }
+
+            public Terms(SortOrder order)
+            {
+                this.Order = order;
+            }
         }
 
         public class DateHistogram : IAggregation
@@ -301,8 +307,8 @@ public class Aggregation
                     {
                         Order = terms.Order switch
                         {
-                            SortOrder.SortOrderAsc => Saffron.Event.SortOrder.Asc,
-                            SortOrder.SortOrderDesc => Saffron.Event.SortOrder.Desc,
+                            SortOrder.Asc => Saffron.Event.SortOrder.Asc,
+                            SortOrder.Desc => Saffron.Event.SortOrder.Desc,
                             _ => Saffron.Event.SortOrder.Unspecified,
                         },
                     };
@@ -314,8 +320,8 @@ public class Aggregation
                         Interval = dateHistogram.Interval,
                         Order = dateHistogram.Order switch
                         {
-                            SortOrder.SortOrderAsc => Saffron.Event.SortOrder.Asc,
-                            SortOrder.SortOrderDesc => Saffron.Event.SortOrder.Desc,
+                            SortOrder.Asc => Saffron.Event.SortOrder.Asc,
+                            SortOrder.Desc => Saffron.Event.SortOrder.Desc,
                             _ => Saffron.Event.SortOrder.Unspecified,
                         },
                     };
@@ -358,7 +364,7 @@ public class SearchEventRequest
     public List<Query> Excludes { get; set; } = new List<Query>();
     public List<Filter> Filters { get; set; } = new List<Filter>();
     public List<Sort> Sorts { get; set; } = new List<Sort>();
-    public Aggregation Aggregation { get; set; } = new Aggregation { };
+    public Aggregation? Aggregation { get; set; } = null;
     public ulong From { get; set; } = 0;
     public ulong Size { get; set; } = 0;
 
@@ -383,12 +389,11 @@ public class SearchEventRequest
         this.Size = size;
     }
 
-    public Saffron.Runtime.SearchEventRequest ToProto(TaskKey taskKey)
+    public Saffron.Runtime.SearchEventRequest ToProto()
     {
         var request = new Saffron.Runtime.SearchEventRequest
         {
-            TaskKey = taskKey.ToProto(),
-            Aggregation = Aggregation.ToProto(),
+            TaskKey = Global.TaskKey.ToProto(),
             From = From,
             Size = Size,
         };
@@ -396,6 +401,10 @@ public class SearchEventRequest
         request.Excludes.AddRange(Excludes.Select(q => q.ToProto()).ToList());
         request.Filters.AddRange(Filters.Select(q => q.ToProto()).ToList());
         request.Sorts.AddRange(Sorts.Select(q => q.ToProto()).ToList());
+        if (Aggregation != null)
+        {
+            request.Aggregation = Aggregation.ToProto();
+        }
 
         return request;
     }
@@ -516,44 +525,6 @@ public class SearchEventResponse
     }
 }
 
-// message SearchEventWithPatternRequest {
-//   repeated saffron.event.Sequence sequences = 2;
-//   optional string max_span = 3;
-//   optional saffron.event.Filter filter = 4;
-// }
-
-// message SearchEventWithPatternResponse {
-//   message SequenceResult {
-//     repeated string join_keys = 1;
-//     repeated saffron.event.Event events = 2;
-//   }
-
-//   uint64 took = 1;
-//   uint64 count = 2;
-//   uint64 total = 3;
-//   repeated SequenceResult sequences = 4;
-// }
-
-// message Sequence {
-//   message Condition {
-//     enum Op {
-//       OP_UNSPECIFIED = 0;
-//       OP_EQ = 1;
-//       OP_NE = 2;
-//       OP_GT = 3;
-//       OP_LT = 4;
-//       OP_GTE = 5;
-//       OP_LTE = 6;
-//     }
-//     Op op = 1;
-//     string field = 2;
-//     string value = 3;
-//   }
-//   repeated Condition conditions = 1;
-//   repeated string shared_fields = 2;
-//   optional string type = 3;
-// }
-
 public enum Op
 {
     Eq = 1,
@@ -636,7 +607,7 @@ public class Sequence
 public class SearchEventWithPatternRequest
 {
     public List<Sequence> Sequences { get; set; } = new List<Sequence>();
-    public string? MaxSpan { get; set; }
+    public string MaxSpan { get; set; } = "";
     public Filter? Filter { get; set; }
 
     public SearchEventWithPatternRequest() { }
@@ -652,11 +623,11 @@ public class SearchEventWithPatternRequest
         this.Filter = filter;
     }
 
-    public Saffron.Runtime.SearchEventWithPatternRequest ToProto(TaskKey taskKey)
+    public Saffron.Runtime.SearchEventWithPatternRequest ToProto()
     {
         var request = new Saffron.Runtime.SearchEventWithPatternRequest
         {
-            TaskKey = taskKey.ToProto(),
+            TaskKey = Global.TaskKey.ToProto(),
             MaxSpan = MaxSpan,
             Filter = Filter?.ToProto(),
         };

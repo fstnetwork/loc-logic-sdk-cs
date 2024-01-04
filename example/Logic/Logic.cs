@@ -43,7 +43,7 @@ public static class Logic
         var db = await DatabaseAgent.Acquire("database");
 
         // select SQL statement
-        var result = await db.Query("SELECT id, message, timestamp FROM logs;");
+        var result = await db.Query("SELECT id, message, timestamp FROM dbo.Log;");
         foreach (var row in result.Rows)
         {
             await LoggingAgent.Info($@"id: {row["id"]}, message: {row["message"]}, timestamp: {row["timestamp"]}");

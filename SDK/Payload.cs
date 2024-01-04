@@ -34,19 +34,24 @@ public class HttpPayload
 {
     public IdentityContext ApiGatewayIdentityContext { get; set; }
     public IdentityContext ApiRouteIdentityContext { get; set; }
-    public Peer Destination { get; set; }
-    public HttpRequest Request { get; set; }
+    public Peer? Source { get; set; }
+    public Peer? Destination { get; set; }
     public string RequestId { get; set; }
-    public Peer Source { get; set; }
+    public HttpRequest Request { get; set; }
 
     public HttpPayload(TaskPayload.Types.HttpPayload http)
     {
         ApiGatewayIdentityContext = new IdentityContext(http.ApiGatewayIdentityContext);
         ApiRouteIdentityContext = new IdentityContext(http.ApiRouteIdentityContext);
-        Destination = new Peer(http.Destination);
-        Request = new HttpRequest(http.Request);
         RequestId = http.RequestId;
-        Source = new Peer(http.Source);
+        Request = new HttpRequest(http.Request);
+
+        if (http.Source != null) {
+            Source = new Peer(http.Source);
+        }
+        if (http.Destination != null) {
+            Destination = new Peer(http.Destination);
+        }
     }
 }
 

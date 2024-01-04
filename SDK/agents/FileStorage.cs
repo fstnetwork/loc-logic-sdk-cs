@@ -101,9 +101,9 @@ public class FileStorageClient
 
 public enum FileType
 {
-    FileTypeFile = 1,
-    FileTypeDirectory = 2,
-    FileTypeSymbolicLink = 3,
+    File = 1,
+    Directory = 2,
+    SymbolicLink = 3,
 }
 
 public class FileInfo
@@ -122,10 +122,10 @@ public class FileInfo
         this.Name = proto.Name;
         this.Type = proto.Type switch
         {
-            ListFileResponse.Types.FileType.File => FileType.FileTypeFile,
-            ListFileResponse.Types.FileType.Directory => FileType.FileTypeDirectory,
-            ListFileResponse.Types.FileType.SymbolicLink => FileType.FileTypeSymbolicLink,
-            _ => FileType.FileTypeFile,
+            ListFileResponse.Types.FileType.File => FileType.File,
+            ListFileResponse.Types.FileType.Directory => FileType.Directory,
+            ListFileResponse.Types.FileType.SymbolicLink => FileType.SymbolicLink,
+            _ => FileType.File,
         };
     }
 }
