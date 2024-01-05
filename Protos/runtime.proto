@@ -217,7 +217,7 @@ message SearchEventResponse {
   uint64 count = 2;
   uint64 total = 3;
   repeated saffron.event.Event events = 4;
-  saffron.event.AggregationResult aggregation = 5;
+  optional saffron.event.AggregationResult aggregation = 5;
 }
 
 message SearchEventWithPatternRequest {

@@ -1,11 +1,18 @@
 using Google.Protobuf;
 using Google.Protobuf.WellKnownTypes;
+using System.Collections;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 public static class Utils
 {
+    public static string? ConvertValueToJsonString(Value protoValue)
+    {
+        JsonFormatter formatter = new JsonFormatter(JsonFormatter.Settings.Default.WithIndentation());
+        return formatter.Format(protoValue);
+    }
+
     public static JsonNode? ConvertValueToJson(Value protoValue)
     {
         JsonFormatter formatter = new JsonFormatter(JsonFormatter.Settings.Default.WithIndentation());
@@ -46,19 +53,27 @@ public static class Utils
                 }
                 return Value.ForStruct(structValue);
 
+            case IDictionary dict:
+                var dictionaryStruct = new Struct();
+                foreach (DictionaryEntry kvp in dict)
+                {
+                    dictionaryStruct.Fields[kvp.Key.ToString()] = ConvertObjectToValue(kvp.Value);
+                }
+                return Value.ForStruct(dictionaryStruct);
+
             case IEnumerable<object> list:
                 var listValue = list.Select(ConvertObjectToValue);
                 return Value.ForList(listValue.ToArray());
 
             default:
-                var structValue2 = new Struct();
+                var customStruct = new Struct();
                 System.Type type = obj.GetType();
                 foreach (PropertyInfo propertyInfo in type.GetProperties())
                 {
                     var propertyValue = propertyInfo.GetValue(obj);
-                    structValue2.Fields[propertyInfo.Name] = ConvertObjectToValue(propertyValue);
+                    customStruct.Fields[propertyInfo.Name] = ConvertObjectToValue(propertyValue);
                 }
-                return Value.ForStruct(structValue2);
+                return Value.ForStruct(customStruct);
         }
     }
 

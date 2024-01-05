@@ -497,15 +497,15 @@ public class SearchEventResponse
     public ulong Took { get; set; }
     public ulong Count { get; set; }
     public ulong Total { get; set; }
-    public List<Event> Events { get; set; }
-    public AggregationResult Aggregation { get; set; }
+    public List<Event> Events { get; set; } = new List<Event>();
+    public AggregationResult? Aggregation { get; set; } = null;
 
     public SearchEventResponse(
         ulong took,
         ulong count,
         ulong total,
         List<Event> events,
-        AggregationResult aggregation
+        AggregationResult? aggregation
     )
     {
         Took = took;
@@ -521,7 +521,10 @@ public class SearchEventResponse
         Count = proto.Count;
         Total = proto.Total;
         Events = proto.Events.Select(e => new Event(e)).ToList();
-        Aggregation = new AggregationResult(proto.Aggregation);
+        if (proto.Aggregation != null)
+        {
+            Aggregation = new AggregationResult(proto.Aggregation);
+        }
     }
 }
 
@@ -607,7 +610,7 @@ public class Sequence
 public class SearchEventWithPatternRequest
 {
     public List<Sequence> Sequences { get; set; } = new List<Sequence>();
-    public string MaxSpan { get; set; } = "";
+    public string MaxSpan { get; set; } = "30s";
     public Filter? Filter { get; set; }
 
     public SearchEventWithPatternRequest() { }

@@ -7,6 +7,43 @@ using System.Text.Json.Nodes;
 public class TestUtils
 {
     [Fact]
+    public void Test_ConvertValueToJsonString()
+    {
+        // test string
+        var protoString = Value.ForString("Hello, World!");
+        var str = Utils.ConvertValueToJsonString(protoString);
+        Assert.Equal("\"Hello, World!\"", str);
+
+        // test number
+        var protoNumber = Value.ForNumber(123.45);
+        var str2 = Utils.ConvertValueToJsonString(protoNumber);
+        Assert.Equal("123.45", str2);
+
+        // test bool
+        var protoBoolean = Value.ForBool(true);
+        var str3 = Utils.ConvertValueToJsonString(protoBoolean);
+        Assert.Equal("true", str3);
+
+        // test null
+        var protoNull = Value.ForNull();
+        var str4 = Utils.ConvertValueToJsonString(protoNull);
+        Assert.Equal("null", str4);
+
+        // test struct
+        var protoStruct = Value.ForStruct(new Struct
+        {
+            Fields =
+            {
+                { "key1", Value.ForString("value1") },
+                { "key2", Value.ForNumber(123) },
+                { "key3", Value.ForString("2019-08-01T00:00:00") },
+            },
+        });
+        var str5 = Utils.ConvertValueToJsonString(protoStruct);
+        Assert.Equal("{\n  \"key1\": \"value1\",\n  \"key2\": 123,\n  \"key3\": \"2019-08-01T00:00:00\"\n}", str5);
+    }
+
+    [Fact]
     public void Test_ConvertValueToObject()
     {
         // test string
@@ -73,6 +110,15 @@ public class TestUtils
         var result4 = Utils.ConvertObjectToValue(list);
         Assert.Equal("item1", result4.ListValue.Values[0].StringValue);
         Assert.Equal("item2", result4.ListValue.Values[1].StringValue);
+
+        // test Dictionary
+        var dict = new Dictionary<string, object> {
+            { "key1", "value1" },
+            { "key2", 123 },
+        };
+        var result5 = Utils.ConvertObjectToValue(dict);
+        Assert.Equal("value1", result5.StructValue.Fields["key1"].StringValue);
+        Assert.Equal(123, result5.StructValue.Fields["key2"].NumberValue);
     }
 
     [Fact]

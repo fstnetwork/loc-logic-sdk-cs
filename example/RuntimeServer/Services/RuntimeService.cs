@@ -1,6 +1,5 @@
 using Grpc.Core;
 using Google.Protobuf.WellKnownTypes;
-using Saffron.Common;
 
 namespace Saffron.Runtime.Services;
 
@@ -377,7 +376,10 @@ public class RuntimeService : Runtime.RuntimeBase
     // Result Agent
     public override Task<Empty> SetResult(SetResultRequest request, ServerCallContext context)
     {
+        Console.WriteLine("----------");
         Console.WriteLine($"Call SetResult: {request.Result}");
+        Console.WriteLine("----------");
+
         return Task.FromResult(new Empty());
     }
 }

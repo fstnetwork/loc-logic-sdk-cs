@@ -26,6 +26,9 @@ public static class Logic
         await LocalStorageAgentExample();
         await SessionStorageAgentExample();
 
+        await ResultAgent.SetResult(new Dictionary<string, string> {
+            { "status", "success" },
+        });
         await LoggingAgent.Info("[END LOGIC]");
     }
 
@@ -44,7 +47,7 @@ public static class Logic
         var db = await DatabaseAgent.Acquire("database");
 
         // select SQL statement
-        var result = await db.Query("SELECT id, message, timestamp FROM dbo.Log;");
+        var result = await db.Query("SELECT id, message, timestamp FROM dbo.Log WHERE id < 3;");
         foreach (var row in result.Rows)
         {
             await LoggingAgent.Info($@"id: {row["id"]}, message: {row["message"]}, timestamp: {row["timestamp"]}");
@@ -108,14 +111,14 @@ public static class Logic
         var fileStorage = await FileStorageAgent.Acquire("file-storage");
 
         // create directory
-        await fileStorage.CreateDirAll("file-storage/example");
+        await fileStorage.CreateDirAll("/file-storage/example");
 
         // write file
         var content = Encoding.UTF8.GetBytes("hello world");
-        await fileStorage.SimplePutFile("file-storage/example/meow.txt", content);
+        await fileStorage.SimplePutFile("/file-storage/example/meow.txt", content);
 
         // list all files
-        var files = await fileStorage.ListFile("file-storage/example");
+        var files = await fileStorage.ListFile("/file-storage/example");
         var tasks = new List<Task>();
         foreach (var file in files)
         {
@@ -125,7 +128,7 @@ public static class Logic
         await Task.WhenAll(tasks);
 
         // delete file
-        await fileStorage.DeleteFile("file-storage/example/meow.txt");
+        await fileStorage.DeleteFile("/file-storage/example/meow.txt");
     }
 
     private static async Task HttpAgentExample()
