@@ -579,7 +579,7 @@ public class Sequence
 {
     public List<Condition> Conditions { get; set; } = new List<Condition>();
     public List<string> SharedFields { get; set; } = new List<string>();
-    public string Type { get; set; } = "";
+    public string Type { get; set; } = "any";
 
     public Sequence() { }
 
