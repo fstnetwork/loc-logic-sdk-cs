@@ -1,28 +1,61 @@
 using Saffron.Execution;
 
-public abstract class Payload { }
+public class Payload
+{
+    public HttpPayload? Http { get; set; }
+    public MessagePayload? Message { get; set; }
+    public EventPayload? Event { get; set; }
 
-public class HttpPayload : Payload
+    public Payload() { }
+
+    public Payload(TaskPayload taskPayload)
+    {
+        switch (taskPayload.PayloadCase)
+        {
+            case TaskPayload.PayloadOneofCase.Http:
+                Http = new HttpPayload(taskPayload.Http);
+                break;
+
+            case TaskPayload.PayloadOneofCase.Event:
+                Event = new EventPayload { };
+                break;
+
+            case TaskPayload.PayloadOneofCase.Message:
+                Message = new MessagePayload(taskPayload.Message);
+                break;
+
+            default:
+                throw new Exception("Unknown payload type");
+        }
+    }
+}
+
+public class HttpPayload
 {
     public IdentityContext ApiGatewayIdentityContext { get; set; }
     public IdentityContext ApiRouteIdentityContext { get; set; }
-    public Peer Destination { get; set; }
-    public HttpRequest Request { get; set; }
+    public Peer? Source { get; set; }
+    public Peer? Destination { get; set; }
     public string RequestId { get; set; }
-    public Peer Source { get; set; }
+    public HttpRequest Request { get; set; }
 
     public HttpPayload(TaskPayload.Types.HttpPayload http)
     {
         ApiGatewayIdentityContext = new IdentityContext(http.ApiGatewayIdentityContext);
         ApiRouteIdentityContext = new IdentityContext(http.ApiRouteIdentityContext);
-        Destination = new Peer(http.Destination);
-        Request = new HttpRequest(http.Request);
         RequestId = http.RequestId;
-        Source = new Peer(http.Source);
+        Request = new HttpRequest(http.Request);
+
+        if (http.Source != null) {
+            Source = new Peer(http.Source);
+        }
+        if (http.Destination != null) {
+            Destination = new Peer(http.Destination);
+        }
     }
 }
 
-public class MessagePayload : Payload
+public class MessagePayload
 {
     public IdentityContext ClientIdentityContext { get; set; }
     public byte[] Data { get; set; }
@@ -45,7 +78,7 @@ public class MessagePayload : Payload
     }
 }
 
-public class EventPayload : Payload { }
+public class EventPayload { }
 
 public class Peer
 {
@@ -134,7 +167,8 @@ public class Subscriber
 {
     public KafkaSubscriber Kafka { get; set; }
 
-    public Subscriber(TaskPayload.Types.MessagePayload.Types.Subscriber subscriber) {
+    public Subscriber(TaskPayload.Types.MessagePayload.Types.Subscriber subscriber)
+    {
         this.Kafka = new KafkaSubscriber(subscriber.Kafka);
     }
 }

@@ -30,6 +30,9 @@ class Runtime
             return 1;
         }
 
+        Console.WriteLine($".NET Runtime starting...");
+        Console.WriteLine($"Execute Task with execution_id={Utils.EncodeUint128(options.ExecutionId)} task_id={Utils.EncodeUint128(options.TaskId)}");
+
         return await Execute(options);
     }
 
@@ -82,7 +85,7 @@ class Runtime
         Marshal.StructureToPtr(optionWrapper, optionPtr, false);
 
         // execute Logic Railways
-        if (await Railway.IsRailwayOk())
+        if (await LogicRailway.IsRailwayOk())
         {
             var errorPtr = run(optionPtr);
             if (errorPtr == IntPtr.Zero)
@@ -94,7 +97,7 @@ class Runtime
             var exceptionWrapper = new ExceptionWrapper(errorPtr);
             var logicError = exceptionWrapper.ToLogicError();
 
-            await Railway.SwitchRailway(logicError.GetType().ToString(), logicError.Message);
+            await LogicRailway.SwitchRailway(logicError.GetType().ToString(), logicError.Message);
 
             handleError(optionPtr, errorPtr);
             return 0;
@@ -102,7 +105,7 @@ class Runtime
         else
         {
             // allocate memory for sharing error
-            var railwayError = await Railway.GetRailwayError();
+            var railwayError = await LogicRailway.GetRailwayError();
             var exWrapper = new ExceptionWrapper(railwayError);
             IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<ExceptionWrapper>());
             Marshal.StructureToPtr(exWrapper, errorPtr, false);
