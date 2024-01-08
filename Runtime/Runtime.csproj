@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>0.0.11</Version>
+    <Version>0.0.12</Version>
     <Nullable>enable</Nullable>
     <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
@@ -20,6 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SDK\SDK.csproj" />
-    <!-- <PackageReference Include="LOC.Logic.Sdk" Version="0.0.11" /> -->
+    <!-- <PackageReference Include="LOC.Logic.Sdk" Version="0.0.12" /> -->
   </ItemGroup>
 </Project>
