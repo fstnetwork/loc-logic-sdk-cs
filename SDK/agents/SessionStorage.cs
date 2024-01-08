@@ -2,7 +2,7 @@ using Saffron.Runtime;
 
 public static class SessionStorageAgent
 {
-    public async static Task<StorageValue> Get(string key)
+    public async static Task<StorageValue?> Get(string key)
     {
         var channel = GrpcChannelService.GetChannel();
         var client = new Runtime.RuntimeClient(channel);
@@ -13,6 +13,10 @@ public static class SessionStorageAgent
             Key = key,
         });
 
+        if (resp.Value == null)
+        {
+            return null;
+        }
         return new StorageValue(resp.Value);
     }
 

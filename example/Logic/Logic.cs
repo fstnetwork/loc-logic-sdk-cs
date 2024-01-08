@@ -163,7 +163,7 @@ public static class Logic
         await LocalStorageAgent.Put("doge", StorageValue.FromString("doge"), 300);
 
         var value = await LocalStorageAgent.Get("doge");
-        await LoggingAgent.Info($"Set LocalStorage doge={value.StringValue}");
+        await LoggingAgent.Info($"Set LocalStorage doge={value?.StringValue}");
     }
 
     private static async Task SessionStorageAgentExample()
@@ -171,7 +171,6 @@ public static class Logic
         await SessionStorageAgent.Put("meow", StorageValue.FromString("meow"));
 
         var value = await SessionStorageAgent.Get("meow");
-        await LoggingAgent.Info($"Set SessionStorage meow={value.StringValue}");
+        await LoggingAgent.Info($"Set SessionStorage meow={value?.StringValue}");
     }
-
 }

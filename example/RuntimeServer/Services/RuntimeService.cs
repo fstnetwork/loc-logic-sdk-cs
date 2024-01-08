@@ -331,7 +331,8 @@ public class RuntimeService : Runtime.RuntimeBase
     public override Task<AcquireHttpResponse> AcquireHttp(AcquireHttpRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call AcquireHttp");
-        return Task.FromResult(new AcquireHttpResponse {
+        return Task.FromResult(new AcquireHttpResponse
+        {
             AgentConfigurationId = Utils.ZeroUuid(),
         });
     }
@@ -346,7 +347,7 @@ public class RuntimeService : Runtime.RuntimeBase
         {
             Console.WriteLine($"\t{header.Key}={header.Value}");
         }
-        Console.WriteLine($"Body:\n\t{ System.Text.Encoding.UTF8.GetString(request.Body.ToByteArray())}");
+        Console.WriteLine($"Body:\n\t{System.Text.Encoding.UTF8.GetString(request.Body.ToByteArray())}");
         Console.WriteLine();
 
         return Task.FromResult(new SendHttpResponse
@@ -365,6 +366,28 @@ public class RuntimeService : Runtime.RuntimeBase
         });
     }
 
+    // LocalStorage Agent
+    public override Task<LocalStorageGetResponse> LocalStorageGet(LocalStorageGetRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call LocalStorageGet");
+        return Task.FromResult(new LocalStorageGetResponse
+        {
+            Value = null,
+        });
+    }
+
+    public override Task<Empty> LocalStoragePut(LocalStoragePutRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call LocalStoragePut");
+        return Task.FromResult(new Empty());
+    }
+
+    public override Task<Empty> LocalStorageDelete(LocalStorageDeleteRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call LocalStorageDelete");
+        return Task.FromResult(new Empty());
+    }
+
     // Logging Agent
     public override Task<Empty> Log(LogRequest request, ServerCallContext context)
     {
@@ -380,6 +403,28 @@ public class RuntimeService : Runtime.RuntimeBase
         Console.WriteLine($"Call SetResult: {request.Result}");
         Console.WriteLine("----------");
 
+        return Task.FromResult(new Empty());
+    }
+
+    // SessionStorage Agent
+    public override Task<SessionStorageGetResponse> SessionStorageGet(SessionStorageGetRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SessionStorageGet");
+        return Task.FromResult(new SessionStorageGetResponse
+        {
+            Value = null,
+        });
+    }
+
+    public override Task<Empty> SessionStoragePut(SessionStoragePutRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SessionStoragePut");
+        return Task.FromResult(new Empty());
+    }
+
+    public override Task<Empty> SessionStorageDelete(SessionStorageDeleteRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SessionStorageDelete");
         return Task.FromResult(new Empty());
     }
 }
