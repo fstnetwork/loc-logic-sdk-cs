@@ -391,7 +391,14 @@ public class RuntimeService : Runtime.RuntimeBase
     // Logging Agent
     public override Task<Empty> Log(LogRequest request, ServerCallContext context)
     {
-        Console.WriteLine($"[{request.Level}] {request.Message}");
+        if (request.Json != null)
+        {
+            Console.WriteLine($"[{request.Level}] {request.Json}");
+        }
+        else
+        {
+            Console.WriteLine($"[{request.Level}] {request.Plaintext}");
+        }
 
         return Task.FromResult(new Empty());
     }

@@ -367,7 +367,10 @@ message LocalStorageDeleteRequest {
 message LogRequest {
   saffron.execution.TaskKey task_key = 1;
   string level = 2;
-  string message = 3;
+  oneof message {
+    string plaintext = 3;
+    google.protobuf.Value json = 4;
+  };
 }
 
 // Result Agent
