@@ -29,6 +29,9 @@ public static class Logic
         await ResultAgent.SetResult(new Dictionary<string, string> {
             { "status", "success" },
         });
+        await LoggingAgent.Info(new Dictionary<string, string> {
+            { "status", "success" },
+        });
         await LoggingAgent.Info("[END LOGIC]");
     }
 
