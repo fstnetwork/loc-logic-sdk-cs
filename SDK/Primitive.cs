@@ -96,12 +96,12 @@ public class TaskKey
         return Utils.UInt128ToBytes(this.TaskId);
     }
 
-    public string executionIdString()
+    public string ExecutionIdString()
     {
         return Utils.EncodeUint128(this.ExecutionId);
     }
 
-    public string taskIdString()
+    public string TaskIdString()
     {
         return Utils.EncodeUint128(this.TaskId);
     }
