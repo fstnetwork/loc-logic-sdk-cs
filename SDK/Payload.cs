@@ -157,7 +157,7 @@ public class HttpRequest
         Host = httpRequest.Host;
         Method = httpRequest.Method;
         Path = httpRequest.Path;
-        Query = httpRequest.Query;
+        Query = httpRequest.Query ?? "";
         Scheme = httpRequest.Scheme;
         Version = httpRequest.Version.ToString();
     }
