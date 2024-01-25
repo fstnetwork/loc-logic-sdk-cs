@@ -22,7 +22,7 @@
         "ms-dotnettools.vscode-dotnet-runtime",
         "streetsidesoftware.code-spell-checker",
         "k--kato.docomment",
-        "wmaurer.change-case"
+        "wmaurer.change-case",
       ]
     }
   }
