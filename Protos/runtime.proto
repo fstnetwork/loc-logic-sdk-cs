@@ -63,6 +63,7 @@ service Runtime {
 
   // Result Agent
   rpc SetResult(SetResultRequest) returns (google.protobuf.Empty);
+  rpc SetHttpStatusCode(SetHttpStatusCodeRequest) returns (google.protobuf.Empty);
 
   // SessionStorage Agent
   rpc SessionStorageGet(SessionStorageGetRequest) returns (SessionStorageGetResponse);
@@ -377,6 +378,11 @@ message LogRequest {
 message SetResultRequest {
   saffron.execution.TaskKey task_key = 1;
   google.protobuf.Value result = 2;
+}
+
+message SetHttpStatusCodeRequest {
+  saffron.execution.TaskKey task_key = 1;
+  uint32 status_code = 2;
 }
 
 // SessionStorage Agent

@@ -46,10 +46,12 @@ public class HttpPayload
         RequestId = http.RequestId;
         Request = new HttpRequest(http.Request);
 
-        if (http.Source != null) {
+        if (http.Source != null)
+        {
             Source = new Peer(http.Source);
         }
-        if (http.Destination != null) {
+        if (http.Destination != null)
+        {
             Destination = new Peer(http.Destination);
         }
     }

@@ -5,6 +5,9 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+/// <summary>
+/// Utility class for various helper methods.
+/// </summary>
 public static class Utils
 {
     public static string? ConvertValueToJsonString(Value protoValue)
@@ -93,14 +96,12 @@ public static class Utils
         if (buf == null)
             return default;
 
-        using (MemoryStream ms = new MemoryStream())
-        {
-            ms.Write(buf, 0, buf.Length);
-            ms.Seek(0, SeekOrigin.Begin);
+        using MemoryStream ms = new();
+        ms.Write(buf, 0, buf.Length);
+        ms.Seek(0, SeekOrigin.Begin);
 
-            MessageParser<T> parser = new MessageParser<T>(() => new T());
-            return parser.ParseFrom(ms);
-        }
+        MessageParser<T> parser = new MessageParser<T>(() => new T());
+        return parser.ParseFrom(ms);
     }
 
     public static UInt128 BytesToUInt128(byte[] bytes)

@@ -13,4 +13,16 @@ public static class ResultAgent
             Result = Utils.ConvertObjectToValue(result),
         });
     }
+
+    public async static Task SetHttpStatusCode(UInt16 statusCode)
+    {
+        var channel = GrpcChannelService.GetChannel();
+        var client = new Runtime.RuntimeClient(channel);
+
+        await client.SetHttpStatusCodeAsync(new SetHttpStatusCodeRequest
+        {
+            TaskKey = Global.TaskKey.ToProto(),
+            StatusCode = statusCode,
+        });
+    }
 }

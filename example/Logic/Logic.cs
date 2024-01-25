@@ -39,6 +39,7 @@ public static class Logic
     {
         Console.WriteLine("[ENTER HANDLE ERROR]");
         await LoggingAgent.Log("ERROR", $"Error occurred: {error}");
+        await ResultAgent.SetHttpStatusCode(500);
         await ResultAgent.SetResult(new Dictionary<string, string> {
             { "status", "internal error" },
             { "error", $"Error occurred: {error}" },

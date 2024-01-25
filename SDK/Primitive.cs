@@ -1,5 +1,8 @@
 using Saffron.Common;
 
+/// <summary>
+/// Represents a versioned identity context.
+/// </summary>
 public class VersionedIdentityContext
 {
     public string Name { get; set; }
@@ -8,6 +11,10 @@ public class VersionedIdentityContext
 
     public int Revision { get; set; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VersionedIdentityContext"/> class.
+    /// </summary>
+    /// <param name="ctx">The gRPC versioned identity context.</param>
     public VersionedIdentityContext(Saffron.Common.VersionedIdentityContext ctx)
     {
         this.Name = ctx.Name;
