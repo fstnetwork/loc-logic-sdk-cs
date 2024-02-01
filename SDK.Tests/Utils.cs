@@ -181,6 +181,17 @@ public class TestUtils
         };
         Assert.Equal(expected1, Utils.ConvertUuidToGuid(value1));
     }
+
+    [Fact]
+    public void Test_ConvertGuidToUuid()
+    {
+        var expected1 = new Saffron.Common.Uuid {
+            HighBits = 8699142959711797708,
+            LowBits = 10595935945440087744,
+        };
+        var value1 = new Guid("78b9906e-8bf6-41cc-930c-539a4abfcec0");
+        Assert.Equal(expected1, Utils.ConvertGuidToUuid(value1));
+    }
 }
 
 class ExampleObject

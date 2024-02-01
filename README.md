@@ -11,17 +11,23 @@ dotnet run --project example/RuntimeServer
 Step 2. build your Logic code
 
 ```bash
+# https://learn.microsoft.com/en-us/dotnet/core/rid-catalog
+export DOTNET_RID=linux-arm64
+
 dotnet publish example/Logic \
     /p:NativeLib=Shared \
-    --runtime linux-arm64 \
+    --runtime $DOTNET_RID \
     --no-self-contained
 ```
 
 Step 3. Execute C# Runtime with your Logic
 
 ```bash
-export LD_LIBRARY_PATH='/workspaces/loc-logic-sdk-cs/example/Logic/bin/Debug/net7.0/linux-arm64/publish'
-# export LD_LIBRARY_PATH='/workspaces/loc-logic-sdk-cs/example/Logic/bin/release/net7.0/linux-arm64/publish'
+# https://learn.microsoft.com/en-us/dotnet/core/rid-catalog
+export DOTNET_RID=linux-arm64
+
+export LD_LIBRARY_PATH="/workspaces/loc-logic-sdk-cs/example/Logic/bin/Debug/net7.0/$DOTNET_RID/publish"
+# export LD_LIBRARY_PATH="/workspaces/loc-logic-sdk-cs/example/Logic/bin/release/net7.0/$DOTNET_RID/publish"
 dotnet run --project Runtime -- --runtime-address http://localhost:5224 --execution-id 0 --task-id 0
 ```
 

@@ -80,8 +80,8 @@ class Runtime
             TaskKey = Global.TaskKey.ToProto(),
             RuntimeAddress = options.RuntimeAddress,
         };
-        var optionWrapper = new OptionWrapper(runtimeOption);
-        IntPtr optionPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(OptionWrapper)));
+        var optionWrapper = new RuntimeOptionWrapper(runtimeOption);
+        IntPtr optionPtr = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(RuntimeOptionWrapper)));
         Marshal.StructureToPtr(optionWrapper, optionPtr, false);
 
         // execute Logic Railways
@@ -94,10 +94,10 @@ class Runtime
             }
 
             // read error from memory pointer, and switch railway
-            var exceptionWrapper = new ExceptionWrapper(errorPtr);
-            var logicError = exceptionWrapper.ToLogicError();
+            var railwayErrorWrapper = new RailwayErrorWrapper(errorPtr);
+            var railwayError = railwayErrorWrapper.ToRailwayError();
 
-            await LogicRailway.SwitchRailway(logicError.GetType().ToString(), logicError.Message);
+            await LogicRailway.SwitchRailway(railwayError.GetType().ToString(), railwayError.Message);
 
             handleError(optionPtr, errorPtr);
             return 0;
@@ -106,8 +106,8 @@ class Runtime
         {
             // allocate memory for sharing error
             var railwayError = await LogicRailway.GetRailwayError();
-            var exWrapper = new ExceptionWrapper(railwayError);
-            IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<ExceptionWrapper>());
+            var exWrapper = new RailwayErrorWrapper(railwayError);
+            IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RailwayErrorWrapper>());
             Marshal.StructureToPtr(exWrapper, errorPtr, false);
 
             handleError(optionPtr, errorPtr);
