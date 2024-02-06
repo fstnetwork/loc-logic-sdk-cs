@@ -5,6 +5,9 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+/// <summary>
+/// Utility class for various helper methods.
+/// </summary>
 public static class Utils
 {
     public static string? ConvertValueToJsonString(Value protoValue)
@@ -93,14 +96,12 @@ public static class Utils
         if (buf == null)
             return default;
 
-        using (MemoryStream ms = new MemoryStream())
-        {
-            ms.Write(buf, 0, buf.Length);
-            ms.Seek(0, SeekOrigin.Begin);
+        using MemoryStream ms = new();
+        ms.Write(buf, 0, buf.Length);
+        ms.Seek(0, SeekOrigin.Begin);
 
-            MessageParser<T> parser = new MessageParser<T>(() => new T());
-            return parser.ParseFrom(ms);
-        }
+        MessageParser<T> parser = new MessageParser<T>(() => new T());
+        return parser.ParseFrom(ms);
     }
 
     public static UInt128 BytesToUInt128(byte[] bytes)
@@ -140,6 +141,10 @@ public static class Utils
 
     public static Guid ConvertUuidToGuid(Saffron.Common.Uuid uuid)
     {
+        // copy the high and low bits to local variables
+        ulong highBits = uuid.HighBits;
+        ulong lowBits = uuid.LowBits;
+
         // Variant 2 UUIDs, historically used in Microsoft's COM/OLE libraries,
         // use a little-endian format, but appear mixed-endian with the first three
         // components of the UUID as little-endian and last two big-endian, due to
@@ -149,8 +154,8 @@ public static class Utils
         byte[] bytes = new byte[16];
         for (int i = 7; i >= 0; i--)
         {
-            bytes[i] = (byte)(uuid.HighBits % 256);
-            uuid.HighBits /= 256;
+            bytes[i] = (byte)(highBits % 256);
+            highBits /= 256;
         }
         (bytes[0], bytes[1], bytes[2], bytes[3]) = (bytes[3], bytes[2], bytes[1], bytes[0]);
         (bytes[4], bytes[5]) = (bytes[5], bytes[4]);
@@ -158,10 +163,43 @@ public static class Utils
 
         for (int i = 7; i >= 0; i--)
         {
-            bytes[i + 8] = (byte)(uuid.LowBits % 256);
-            uuid.LowBits /= 256;
+            bytes[i + 8] = (byte)(lowBits % 256);
+            lowBits /= 256;
         }
 
         return new Guid(bytes);
+    }
+
+    public static Saffron.Common.Uuid ConvertGuidToUuid(Guid guid)
+    {
+        // Extract the bytes from the Guid
+        byte[] bytes = guid.ToByteArray();
+
+        // The Guid bytes need to be rearranged to match the Uuid format
+        // Reverse the first 4 bytes (0 to 3) and then the next 2 bytes (4,5) and the next 2 bytes (6,7) for HighBits
+        (bytes[0], bytes[1], bytes[2], bytes[3]) = (bytes[3], bytes[2], bytes[1], bytes[0]);
+        (bytes[4], bytes[5]) = (bytes[5], bytes[4]);
+        (bytes[6], bytes[7]) = (bytes[7], bytes[6]);
+
+        // Convert the first 8 bytes to HighBits
+        ulong highBits = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            highBits = (highBits << 8) | bytes[i];
+        }
+
+        // Convert the next 8 bytes to LowBits
+        ulong lowBits = 0;
+        for (int i = 8; i < 16; i++)
+        {
+            lowBits = (lowBits << 8) | bytes[i];
+        }
+
+        // Construct the Uuid using the high and low bits
+        return new Saffron.Common.Uuid
+        {
+            HighBits = highBits,
+            LowBits = lowBits
+        };
     }
 }

@@ -1,56 +1,55 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Saffron.Runtime;
+﻿using Saffron.Runtime;
 
 public static class LoggingAgent
 {
     public async static Task Trace(string message)
     {
-        await Log("TRACE", message);
+        await Log("Trace", message);
     }
 
     public async static Task Trace(object message)
     {
-        await Log("TRACE", message);
+        await Log("Trace", message);
     }
 
     public async static Task Debug(string message)
     {
-        await Log("DEBUG", message);
+        await Log("Debug", message);
     }
 
     public async static Task Debug(object message)
     {
-        await Log("DEBUG", message);
+        await Log("Debug", message);
     }
 
     public async static Task Info(string message)
     {
-        await Log("INFO", message);
+        await Log("Info", message);
     }
 
     public async static Task Info(object message)
     {
-        await Log("INFO", message);
+        await Log("Info", message);
     }
 
     public async static Task Warn(string message)
     {
-        await Log("WARN", message);
+        await Log("Warn", message);
     }
 
     public async static Task Warn(object message)
     {
-        await Log("WARN", message);
+        await Log("Warn", message);
     }
 
     public async static Task Error(string message)
     {
-        await Log("ERROR", message);
+        await Log("Error", message);
     }
 
     public async static Task Error(object message)
     {
-        await Log("ERROR", message);
+        await Log("Error", message);
     }
 
     public async static Task Log(string level, string message)

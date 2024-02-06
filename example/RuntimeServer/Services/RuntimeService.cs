@@ -413,6 +413,15 @@ public class RuntimeService : Runtime.RuntimeBase
         return Task.FromResult(new Empty());
     }
 
+    public override Task<Empty> SetHttpStatusCode(SetHttpStatusCodeRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("----------");
+        Console.WriteLine($"Call SetHttpStatusCode: {request.StatusCode}");
+        Console.WriteLine("----------");
+
+        return Task.FromResult(new Empty());
+    }
+
     // SessionStorage Agent
     public override Task<SessionStorageGetResponse> SessionStorageGet(SessionStorageGetRequest request, ServerCallContext context)
     {

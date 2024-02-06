@@ -11,17 +11,23 @@ dotnet run --project example/RuntimeServer
 Step 2. build your Logic code
 
 ```bash
+# https://learn.microsoft.com/en-us/dotnet/core/rid-catalog
+export DOTNET_RID=linux-arm64
+
 dotnet publish example/Logic \
     /p:NativeLib=Shared \
-    --runtime linux-arm64 \
+    --runtime $DOTNET_RID \
     --no-self-contained
 ```
 
 Step 3. Execute C# Runtime with your Logic
 
 ```bash
-export LD_LIBRARY_PATH='/workspaces/loc-logic-sdk-cs/example/Logic/bin/Debug/net7.0/linux-arm64/publish'
-# export LD_LIBRARY_PATH='/workspaces/loc-logic-sdk-cs/example/Logic/bin/release/net7.0/linux-arm64/publish'
+# https://learn.microsoft.com/en-us/dotnet/core/rid-catalog
+export DOTNET_RID=linux-arm64
+
+export LD_LIBRARY_PATH="/workspaces/loc-logic-sdk-cs/example/Logic/bin/Debug/net7.0/$DOTNET_RID/publish"
+# export LD_LIBRARY_PATH="/workspaces/loc-logic-sdk-cs/example/Logic/bin/release/net7.0/$DOTNET_RID/publish"
 dotnet run --project Runtime -- --runtime-address http://localhost:5224 --execution-id 0 --task-id 0
 ```
 
@@ -48,7 +54,7 @@ or publish to the test server https://int.nugettest.org/
 ```bash
 dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
     --api-key oy2bnoiytx7r6f3ja2rab6ovhrdc3nhenb3awkmdg6mc7m \
-    --source https://int.nugettest.org/api/v2/package \
+    --source https://apiint.nugettest.org/v3/index.json \
     --skip-duplicate
 ```
 
@@ -58,7 +64,8 @@ or publish to self-host NuGet server (e.g. BaGet)
 kubectl port-forward svc/baget 8080 --address 192.168.96.80
 dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
     --api-key ERTdMbF49MS6jaaxvXqDntly \
-    --source http://192.168.96.80:8080/v3/index.json
+    --source http://192.168.96.80:8080/v3/index.json \
+    --skip-duplicate
 ```
 
 ## Download from difference NuGet source
@@ -66,7 +73,7 @@ dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
 add new NuGet source
 
 ```bash
-dotnet nuget add source https://int.nugettest.org/api/v2/ --name nugettest.org
+dotnet nuget add source https://apiint.nugettest.org/v3/index.json --name nugettest.org
 ```
 
 add package from specify source
@@ -81,7 +88,7 @@ download all decencies from specify source
 dotnet restore --source "nugettest.org"
 ```
 
-### Buggy
+## Buggy
 
 Sometimes, NuGet cache can prevent you from successfully accessing new versions 🥲
 

@@ -1,5 +1,8 @@
 using Saffron.Common;
 
+/// <summary>
+/// Represents a versioned identity context.
+/// </summary>
 public class VersionedIdentityContext
 {
     public string Name { get; set; }
@@ -8,14 +11,33 @@ public class VersionedIdentityContext
 
     public int Revision { get; set; }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VersionedIdentityContext"/> class.
+    /// </summary>
+    /// <param name="ctx">The gRPC versioned identity context.</param>
     public VersionedIdentityContext(Saffron.Common.VersionedIdentityContext ctx)
     {
         this.Name = ctx.Name;
         this.PermanentIdentity = Utils.ConvertUuidToGuid(ctx.Id.PermanentIdentity);
         this.Revision = ctx.Id.Revision.Value;
     }
+
+    /// <summary>
+    /// Extract a new <see cref="VersionedIdentity"/> class from this instance.
+    /// </summary>
+    public VersionedIdentity ToVersionedIdentity()
+    {
+        return new VersionedIdentity
+        {
+            PermanentIdentity = this.PermanentIdentity,
+            Revision = this.Revision,
+        };
+    }
 }
 
+/// <summary>
+/// Represents a non-versioned identity context.
+/// </summary>
 public class IdentityContext
 {
     public string Name { get; set; }
@@ -26,6 +48,44 @@ public class IdentityContext
     {
         this.Name = ctx.Name;
         this.PermanentIdentity = Utils.ConvertUuidToGuid(ctx.Id);
+    }
+}
+
+/// <summary>
+/// Represents a versioned identity.
+/// </summary>
+public class VersionedIdentity
+{
+    public Guid PermanentIdentity { get; set; }
+
+    public int Revision { get; set; }
+
+    public VersionedIdentity() { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VersionedIdentity"/> class.
+    /// </summary>
+    /// <param name="ctx">The gRPC versioned identity.</param>
+    public VersionedIdentity(Saffron.Common.VersionedIdentity identity)
+    {
+        this.PermanentIdentity = Utils.ConvertUuidToGuid(identity.PermanentIdentity);
+        this.Revision = identity.Revision.Value;
+    }
+
+    /// <summary>
+    /// Convert this instance to a gRPC versioned identity.
+    /// </summary>
+    /// <param name="ctx">The gRPC versioned identity.</param>
+    public Saffron.Common.VersionedIdentity ToProto()
+    {
+        return new Saffron.Common.VersionedIdentity
+        {
+            PermanentIdentity = Utils.ConvertGuidToUuid(this.PermanentIdentity),
+            Revision = new Saffron.Common.Revision
+            {
+                Value = this.Revision
+            }
+        };
     }
 }
 

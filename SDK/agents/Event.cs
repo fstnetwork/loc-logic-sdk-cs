@@ -86,9 +86,9 @@ public class Query
     {
         public string Value { get; set; }
 
-        public Match(string Value)
+        public Match(string value)
         {
-            this.Value = Value;
+            this.Value = value;
         }
     }
 
@@ -96,9 +96,9 @@ public class Query
     {
         public string Value { get; set; }
 
-        public MatchPhrase(string Value)
+        public MatchPhrase(string value)
         {
-            this.Value = Value;
+            this.Value = value;
         }
     }
 
@@ -275,9 +275,9 @@ public class Aggregation
             public string Interval { get; set; }
             public SortOrder? Order { get; set; }
 
-            public DateHistogram(string Interval)
+            public DateHistogram(string interval)
             {
-                this.Interval = Interval;
+                this.Interval = interval;
             }
 
             public DateHistogram(string interval, SortOrder order)
@@ -335,14 +335,14 @@ public class Aggregation
     public Aggregation() { }
 
     public Aggregation(
-        List<Query> Queries,
-        ulong? Size,
-        Dictionary<string, string> After
+        List<Query> queries,
+        ulong? size,
+        Dictionary<string, string> after
     )
     {
-        this.Queries = Queries;
-        this.Size = Size;
-        this.After = After;
+        this.Queries = queries;
+        this.Size = size;
+        this.After = after;
     }
 
     public Saffron.Event.Aggregation ToProto()

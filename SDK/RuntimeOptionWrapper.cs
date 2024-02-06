@@ -2,14 +2,14 @@ using Saffron.ExternalRuntime;
 using System.Runtime.InteropServices;
 
 [StructLayout(LayoutKind.Sequential)]
-public class OptionWrapper
+public class RuntimeOptionWrapper
 {
     public IntPtr Pointer;
     public int Size;
 
-    public OptionWrapper() { }
+    public RuntimeOptionWrapper() { }
 
-    public OptionWrapper(RuntimeOption option)
+    public RuntimeOptionWrapper(RuntimeOption option)
     {
         byte[] bytes = Utils.ConvertToByteArray(option);
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
@@ -19,12 +19,12 @@ public class OptionWrapper
         Size = bytes.Length;
     }
 
-    public OptionWrapper(IntPtr pointer)
+    public RuntimeOptionWrapper(IntPtr pointer)
     {
-        var option = Marshal.PtrToStructure<OptionWrapper>(pointer);
+        var option = Marshal.PtrToStructure<RuntimeOptionWrapper>(pointer);
         if (option == null)
         {
-            throw new Exception("OptionWrapper is null");
+            throw new Exception("RuntimeOptionWrapper is null");
         }
 
         Pointer = option.Pointer;

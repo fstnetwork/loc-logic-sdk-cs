@@ -37,8 +37,14 @@ public static class Logic
 
     public static async Task HandleError(Context ctx, Exception error)
     {
+        if (error is RailwayError railwayError) {
+            Console.WriteLine($"An error occurred on Logic `{railwayError?.LogicIdentity?.PermanentIdentity}-{railwayError?.LogicIdentity?.Revision}`");
+        }
+
         Console.WriteLine("[ENTER HANDLE ERROR]");
         await LoggingAgent.Log("ERROR", $"Error occurred: {error}");
+
+        await ResultAgent.SetHttpStatusCode(500);
         await ResultAgent.SetResult(new Dictionary<string, string> {
             { "status", "internal error" },
             { "error", $"Error occurred: {error}" },

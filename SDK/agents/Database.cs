@@ -20,8 +20,8 @@ public static class DatabaseAgent
 
 public class DatabaseClient
 {
-    string DataSourceId;
-    string ConnectionId;
+    readonly string DataSourceId;
+    readonly string ConnectionId;
 
     public DatabaseClient(string dataSourceId, string connectionId)
     {

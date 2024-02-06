@@ -1,5 +1,6 @@
 using Google.Protobuf;
 using Saffron.Runtime;
+using System.Text.Json;
 
 public static class LocalStorageAgent
 {
@@ -67,6 +68,27 @@ public class StorageValue
     public object? JsonValue { get; set; }
 
     public StorageValue() { }
+
+    public override string ToString()
+    {
+        if (BytesValue != null)
+        {
+            return $"[Bytes] {BytesValue}";
+        }
+
+        if (StringValue != null)
+        {
+            return $"[String] {StringValue}";
+        }
+
+        if (JsonValue != null)
+        {
+            var jsonString = JsonSerializer.Serialize(JsonValue);
+            return $"[Json] {jsonString}";
+        }
+
+        return "Invalid StorageValue type";
+    }
 
     public static StorageValue FromBytes(byte[] bytes)
     {

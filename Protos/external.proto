@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package saffron.externalRuntime;
 
+import "common/identity.proto";
 import "task.proto";
 
 message RuntimeOption {
@@ -9,8 +10,9 @@ message RuntimeOption {
   string runtime_address = 2;
 }
 
-message ExceptionInfo {
-    string type = 1;
+message RailwayErrorInner {
+    string name = 1;
     string message = 2;
     string stack_trace = 3;
+    optional saffron.common.VersionedIdentity logic_identity = 4;
 }

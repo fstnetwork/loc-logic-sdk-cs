@@ -22,7 +22,7 @@ public static class HttpAgent
 
 public class HttpClient
 {
-    Saffron.Common.Uuid AgentConfigurationId;
+    readonly Saffron.Common.Uuid AgentConfigurationId;
 
     public HttpClient(Saffron.Common.Uuid agentConfigurationId)
     {

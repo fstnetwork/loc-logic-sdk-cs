@@ -20,7 +20,7 @@ public static class FileStorageAgent
 
 public class FileStorageClient
 {
-    Saffron.Common.Uuid AgentConfigurationId;
+    readonly Saffron.Common.Uuid AgentConfigurationId;
 
     public FileStorageClient(Saffron.Common.Uuid agentConfigurationId)
     {

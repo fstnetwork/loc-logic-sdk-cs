@@ -7,16 +7,28 @@ public static class RunnableLogic
     {
         initializeFromOption(optionPtr);
 
+        var context = new Context();
+
         try
         {
-            Logic.Run(new Context()).GetAwaiter().GetResult();
+            Logic.Run(context).GetAwaiter().GetResult();
         }
         catch (Exception ex)
         {
+            RailwayErrorWrapper errorWrapper;
+            var currentLogic = context.GetTask().GetAwaiter().GetResult()?.CurrentLogic ?? null;
+            if (currentLogic == null)
+            {
+                errorWrapper = new RailwayErrorWrapper(ex);
+            }
+            else
+            {
+                errorWrapper = new RailwayErrorWrapper(ex, currentLogic.ToVersionedIdentity());
+            }
+
             // allocate memory for sharing error
-            var exWrapper = new ExceptionWrapper(ex);
-            IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<ExceptionWrapper>());
-            Marshal.StructureToPtr(exWrapper, errorPtr, false);
+            IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RailwayErrorWrapper>());
+            Marshal.StructureToPtr(errorWrapper, errorPtr, false);
             return errorPtr;
         }
 
@@ -29,16 +41,16 @@ public static class RunnableLogic
         initializeFromOption(optionPtr);
 
         // read error from memory pointer
-        var exceptionWrapper = new ExceptionWrapper(errorPtr);
-        var logicError = exceptionWrapper.ToLogicError();
+        var railwayErrorWrapper = new RailwayErrorWrapper(errorPtr);
+        var railwayError = railwayErrorWrapper.ToRailwayError();
 
-        Logic.HandleError(new Context(), logicError).GetAwaiter().GetResult();
+        Logic.HandleError(new Context(), railwayError).GetAwaiter().GetResult();
     }
 
     private static void initializeFromOption(IntPtr optionPtr)
     {
         // read option from memory pointer
-        var optionWrapper = new OptionWrapper(optionPtr);
+        var optionWrapper = new RuntimeOptionWrapper(optionPtr);
         var option = optionWrapper.ToRuntimeOption();
 
         // initialize connected runtime address
