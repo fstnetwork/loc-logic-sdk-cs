@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish to NuGet
         run: |
-          dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.*.nupkg \
+          dotnet nuget push ./SDK/bin/Release/FSTNetwork.LOC.Logic.SDK.*.nupkg \
               --api-key ${{ secrets.NUGET_KEY }} \
               --source ${{ vars.NUGET_SOURCE }} \
               --skip-duplicate
