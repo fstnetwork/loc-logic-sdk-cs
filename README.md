@@ -43,8 +43,8 @@ Step 2.
 publish to https://www.nuget.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
-    --api-key qz2jga8pl3dvn2akksyquwcs9ygggg4exypy3bhxy6w6x6 \
+dotnet nuget push ./SDK/bin/Release/FSTNetwork.LOC.Logic.SDK.0.0.6.nupkg \
+    --api-key oy2p5ug6dgdlzno6bxiauz7rxru4qjkezm6nfxvhgl24nu \
     --source https://api.nuget.org/v3/index.json \
     --skip-duplicate
 ```
@@ -52,7 +52,7 @@ dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
 or publish to the test server https://int.nugettest.org/
 
 ```bash
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
+dotnet nuget push ./SDK/bin/Release/FSTNetwork.LOC.Logic.SDK.0.0.6.nupkg \
     --api-key oy2bnoiytx7r6f3ja2rab6ovhrdc3nhenb3awkmdg6mc7m \
     --source https://apiint.nugettest.org/v3/index.json \
     --skip-duplicate
@@ -62,7 +62,7 @@ or publish to self-host NuGet server (e.g. BaGet)
 
 ```bash
 kubectl port-forward svc/baget 8080 --address 192.168.96.80
-dotnet nuget push ./SDK/bin/Release/LOC.Logic.SDK.0.0.6.nupkg \
+dotnet nuget push ./SDK/bin/Release/FSTNetwork.LOC.Logic.SDK.0.0.6.nupkg \
     --api-key ERTdMbF49MS6jaaxvXqDntly \
     --source http://192.168.96.80:8080/v3/index.json \
     --skip-duplicate
@@ -79,13 +79,37 @@ dotnet nuget add source https://apiint.nugettest.org/v3/index.json --name nugett
 add package from specify source
 
 ```bash
-dotnet add package LOC.Logic.Sdk --version 0.0.6 --source "nugettest.org"
+dotnet add package FSTNetwork.LOC.Logic.Sdk --version 0.0.6 --source "nugettest.org"
 ```
 
 download all decencies from specify source
 
 ```bash
 dotnet restore --source "nugettest.org"
+```
+
+## Prepare for an offline environment
+
+```bash
+export SDK_VERSION=0.0.15
+export DOTNET_RUNTIME_VERSION=7.0.16
+
+# dotnet nuget add source https://apiint.nugettest.org/v3/index.json --name nugettest.org
+
+# clean all cache packages
+rm $(find  ~/.nuget/ -name *.nupkg)
+
+# download necessary packages
+dotnet new console -o /tmp/temp-project
+dotnet add /tmp/temp-project package FSTNetwork.LOC.Logic.Sdk --version $SDK_VERSION
+dotnet add /tmp/temp-project package runtime.linux-x64.Microsoft.DotNet.ILCompiler --version $DOTNET_RUNTIME_VERSION
+rm -rf /tmp/temp-project
+
+# upload packages to self-host nuget server
+dotnet nuget push ~/.nuget/**/*.nupkg \
+    --api-key ERTdMbF49MS6jaaxvXqDntly \
+    --source https://baget.cellar.fst.network/v3/index.json \
+    --skip-duplicate
 ```
 
 ## Buggy

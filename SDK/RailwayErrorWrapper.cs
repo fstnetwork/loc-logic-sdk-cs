@@ -47,7 +47,7 @@ public class RailwayErrorWrapper
         var ex = Marshal.PtrToStructure<RailwayErrorWrapper>(pointer);
         if (ex == null)
         {
-            throw new Exception("ExceptionWrapper is null");
+            throw new Exception("RailwayErrorWrapper is null");
         }
 
         Pointer = ex.Pointer;
