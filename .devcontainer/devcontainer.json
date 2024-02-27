@@ -11,6 +11,15 @@
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
 
+  // Mounts let you access files from your local file system in the container.
+  "mounts": [
+    {
+      "source": "${localEnv:HOME}/.ssh",
+      "target": "/home/vscode/.ssh",
+      "type": "bind"
+    }
+  ],
+
   // Configure tool-specific properties.
   "customizations": {
     // Configure properties specific to VS Code.
