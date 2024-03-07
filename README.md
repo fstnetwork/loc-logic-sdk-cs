@@ -91,13 +91,13 @@ dotnet restore --source "nugettest.org"
 ## Prepare for an offline environment
 
 ```bash
-export SDK_VERSION=0.0.15
+export SDK_VERSION=0.0.17
 export DOTNET_RUNTIME_VERSION=7.0.16
 
 # dotnet nuget add source https://apiint.nugettest.org/v3/index.json --name nugettest.org
 
 # clean all cache packages
-rm $(find  ~/.nuget/ -name *.nupkg)
+rm $(find  ~/.nuget/ -name '*.nupkg')
 
 # download necessary packages
 dotnet new console -o /tmp/temp-project
