@@ -327,6 +327,66 @@ public class RuntimeService : Runtime.RuntimeBase
         return Task.FromResult(resp);
     }
 
+    // FileStorage Agent
+    public override Task<AcquireFileStorageResponse> AcquireFileStorage(AcquireFileStorageRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call AcquireFileStorage");
+        return Task.FromResult(new AcquireFileStorageResponse
+        {
+            AgentConfigurationId = Utils.ZeroUuid(),
+        });
+    }
+
+    public override Task<SimpleGetFileResponse> SimpleGetFile(SimpleGetFileRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SimpleGetFile");
+        return Task.FromResult(new SimpleGetFileResponse
+        {
+            Content = Google.Protobuf.ByteString.CopyFromUtf8("hello world"),
+        });
+    }
+
+    public override Task<SimplePutFileResponse> SimplePutFile(SimplePutFileRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call SimplePutFile");
+        return Task.FromResult(new SimplePutFileResponse
+        {
+            Size = 100,
+        });
+    }
+
+    public override Task<Empty> DeleteFile(DeleteFileRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call DeleteFile");
+        return Task.FromResult(new Empty());
+    }
+
+    public override Task<ListFileResponse> ListFile(ListFileRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call ListFile");
+        return Task.FromResult(new ListFileResponse
+        {
+            Files = {
+                new ListFileResponse.Types.FileInfo
+                {
+                    Type = ListFileResponse.Types.FileType.File,
+                    Name = "file.txt",
+                },
+                new ListFileResponse.Types.FileInfo
+                {
+                    Type = ListFileResponse.Types.FileType.Directory,
+                    Name = "dir1",
+                },
+            },
+        });
+    }
+
+    public override Task<Empty> CreateDirAll(CreateDirAllRequest request, ServerCallContext context)
+    {
+        Console.WriteLine("Call CreateDirAll");
+        return Task.FromResult(new Empty());
+    }
+
     // Http Agent
     public override Task<AcquireHttpResponse> AcquireHttp(AcquireHttpRequest request, ServerCallContext context)
     {
@@ -370,21 +430,33 @@ public class RuntimeService : Runtime.RuntimeBase
     public override Task<LocalStorageGetResponse> LocalStorageGet(LocalStorageGetRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call LocalStorageGet");
+
+        var storage = SharedStorage.GetStorage();
+        storage.localStorage.TryGetValue(request.Key, out var value);
+
         return Task.FromResult(new LocalStorageGetResponse
         {
-            Value = null,
+            Value = value,
         });
     }
 
     public override Task<Empty> LocalStoragePut(LocalStoragePutRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call LocalStoragePut");
+
+        var storage = SharedStorage.GetStorage();
+        storage.localStorage[request.Key] = request.Value;
+
         return Task.FromResult(new Empty());
     }
 
     public override Task<Empty> LocalStorageDelete(LocalStorageDeleteRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call LocalStorageDelete");
+
+        var storage = SharedStorage.GetStorage();
+        storage.localStorage.Remove(request.Key);
+
         return Task.FromResult(new Empty());
     }
 
@@ -426,21 +498,33 @@ public class RuntimeService : Runtime.RuntimeBase
     public override Task<SessionStorageGetResponse> SessionStorageGet(SessionStorageGetRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call SessionStorageGet");
+
+        var storage = SharedStorage.GetStorage();
+        storage.sessionStorage.TryGetValue(request.Key, out var value);
+
         return Task.FromResult(new SessionStorageGetResponse
         {
-            Value = null,
+            Value = value,
         });
     }
 
     public override Task<Empty> SessionStoragePut(SessionStoragePutRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call SessionStoragePut");
+
+        var storage = SharedStorage.GetStorage();
+        storage.sessionStorage[request.Key] = request.Value;
+
         return Task.FromResult(new Empty());
     }
 
     public override Task<Empty> SessionStorageDelete(SessionStorageDeleteRequest request, ServerCallContext context)
     {
         Console.WriteLine("Call SessionStorageDelete");
+
+        var storage = SharedStorage.GetStorage();
+        storage.sessionStorage.Remove(request.Key);
+
         return Task.FromResult(new Empty());
     }
 }

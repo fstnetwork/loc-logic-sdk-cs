@@ -24,7 +24,7 @@ public class RailwayError : Exception
     }
 
     public override string ToString()
-    {        
+    {
         return $"{Name}, {Message}\n{StackTrace}";
     }
 }

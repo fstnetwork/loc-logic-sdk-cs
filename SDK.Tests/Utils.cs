@@ -119,6 +119,23 @@ public class TestUtils
         var result5 = Utils.ConvertObjectToValue(dict);
         Assert.Equal("value1", result5.StructValue.Fields["key1"].StringValue);
         Assert.Equal(123, result5.StructValue.Fields["key2"].NumberValue);
+
+        // test JsonNode
+        var jsonObject = new JsonObject
+        {
+            ["propertyName"] = "propertyValue",
+            ["float"] = 0.1,
+            ["number"] = 123,
+            ["boolean"] = true,
+            ["null"] = null,
+            ["nestedObject"] = new JsonObject
+            {
+                ["nestedPropertyName"] = "nestedPropertyValue"
+            }
+        };
+        var result6 = Utils.ConvertObjectToValue(jsonObject);
+        Assert.Equal("propertyValue", result6.StructValue.Fields["propertyName"].StringValue);
+        Assert.Equal(123, result6.StructValue.Fields["number"].NumberValue);
     }
 
     [Fact]

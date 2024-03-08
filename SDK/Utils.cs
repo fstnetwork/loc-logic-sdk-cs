@@ -4,6 +4,17 @@ using System.Collections;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+
+/// <summary>
+/// Utility class for JSON (de)serialization source generation.
+/// For more information, see https://learn.microsoft.com/zh-tw/dotnet/standard/serialization/system-text-json/source-generation?pivots=dotnet-7-0
+/// </summary>
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(JsonNode))]
+internal partial class JsonNodeSourceGenerationContext : JsonSerializerContext
+{
+}
 
 /// <summary>
 /// Utility class for various helper methods.
@@ -20,7 +31,53 @@ public static class Utils
     {
         JsonFormatter formatter = new JsonFormatter(JsonFormatter.Settings.Default.WithIndentation());
         string jsonString = formatter.Format(protoValue);
-        return JsonSerializer.Deserialize<JsonNode>(jsonString);
+        return JsonSerializer.Deserialize<JsonNode>(jsonString, JsonNodeSourceGenerationContext.Default.JsonNode);
+    }
+
+    public static Value ConvertJsonToValue(JsonNode? json)
+    {
+        if (json == null)
+        {
+            return Value.ForNull();
+        }
+
+        switch (json)
+        {
+            case JsonValue value when value.TryGetValue(out bool boolVal):
+                return Value.ForBool(boolVal);
+
+            case JsonValue value when value.TryGetValue(out double numberVal):
+                return Value.ForNumber(numberVal);
+
+            case JsonValue value when value.TryGetValue(out int intVal):
+                return Value.ForNumber(intVal);
+
+            case JsonValue value when value.TryGetValue(out long longVal):
+                return Value.ForNumber(longVal);
+
+            case JsonValue value when value.TryGetValue(out string? strVal):
+                return Value.ForString(strVal ?? string.Empty);
+
+            case JsonArray array:
+                var listValue = new List<Value>();
+                foreach (var item in array)
+                {
+                    listValue.Add(ConvertJsonToValue(item));
+                }
+                return Value.ForList(listValue.ToArray());
+
+            case JsonObject obj:
+                var structValue = new Struct();
+                foreach (var kvp in obj)
+                {
+                    structValue.Fields[kvp.Key] = ConvertJsonToValue(kvp.Value);
+                }
+                return Value.ForStruct(structValue);
+
+            default:
+                var typeName = json.GetType().Name;
+                throw new ArgumentException($"Unsupported JSON node type: {typeName}");
+        }
     }
 
     public static Value ConvertObjectToValue(object? obj)
@@ -47,6 +104,9 @@ public static class Utils
 
             case string s:
                 return Value.ForString(s);
+
+            case JsonNode json:
+                return ConvertJsonToValue(json);
 
             case IDictionary<string, object> dict:
                 var structValue = new Struct();

@@ -1,11 +1,16 @@
 ﻿extern alias Shared;
 
+using Shared.Model;
 using Shared.Utils;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 public static class Logic
 {
+    [RequiresDynamicCode("Allows dynamic code")]
+    [RequiresUnreferencedCode("Allows unreferenced code")]
     public static async Task Run(Context ctx)
     {
         await LoggingAgent.Info("[START LOGIC]");
@@ -29,15 +34,13 @@ public static class Logic
         await ResultAgent.SetResult(new Dictionary<string, string> {
             { "status", "success" },
         });
-        await LoggingAgent.Info(new Dictionary<string, string> {
-            { "status", "success" },
-        });
         await LoggingAgent.Info("[END LOGIC]");
     }
 
     public static async Task HandleError(Context ctx, Exception error)
     {
-        if (error is RailwayError railwayError) {
+        if (error is RailwayError railwayError)
+        {
             Console.WriteLine($"An error occurred on Logic `{railwayError?.LogicIdentity?.PermanentIdentity}-{railwayError?.LogicIdentity?.Revision}`");
         }
 
@@ -140,6 +143,8 @@ public static class Logic
         await fileStorage.DeleteFile("/file-storage/example/meow.txt");
     }
 
+    [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
+    [RequiresDynamicCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
     private static async Task HttpAgentExample()
     {
         var client = await HttpAgent.Acquire("http");
@@ -167,19 +172,39 @@ public static class Logic
         await client.Post(new SendHttpRequest("/case3", stringContent));
     }
 
+    [RequiresDynamicCode("Calls StorageValue.FromJson(Object)")]
+    [RequiresUnreferencedCode("Calls StorageValue.FromJson(Object)")]
     private static async Task LocalStorageAgentExample()
     {
         await LocalStorageAgent.Put("doge", StorageValue.FromString("doge"), 300);
 
+        // test string
         var value = await LocalStorageAgent.Get("doge");
         await LoggingAgent.Info($"Set LocalStorage doge={value?.StringValue}");
+
+        // test dictionary
+        var dict = new Dictionary<string, string> {
+            { "key", "value" },
+            { "key2", "value2" },
+        };
+        await LocalStorageAgent.Put("dict", StorageValue.FromJson(dict));
+        var dictBack = await LocalStorageAgent.Get("dict");
+        await LoggingAgent.Info($"Set LocalStorage dict={dictBack?.JsonValue}");
     }
 
     private static async Task SessionStorageAgentExample()
     {
         await SessionStorageAgent.Put("meow", StorageValue.FromString("meow"));
 
+        // test string
         var value = await SessionStorageAgent.Get("meow");
         await LoggingAgent.Info($"Set SessionStorage meow={value?.StringValue}");
+
+        // test custom class
+        var person = new Person("Bob");
+        await SessionStorageAgent.Put("bob", StorageValue.FromJson(person, PersonSourceGenerationContext.Default.Person));
+        var personBack = await SessionStorageAgent.Get("bob");
+        await LoggingAgent.Info($"Set SessionStorage bob={personBack?.JsonValue}");
+        await LoggingAgent.Info($"Set SessionStorage bob={personBack?.JsonValue?["Name"]}");
     }
 }
