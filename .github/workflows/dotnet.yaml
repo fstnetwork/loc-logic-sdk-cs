@@ -45,12 +45,22 @@ jobs:
             --no-self-contained \
             --output out
 
+      - name: Build DummyLogic
+        run: |
+          dotnet publish DummyLogic \
+            --configuration Release \
+            --runtime linux-x64 \
+            --no-self-contained \
+            --output out/dummy-logic
+
       - name: Archive Build Artifacts
         uses: actions/upload-artifact@v4
         if: "!startsWith(github.ref, 'refs/tags/')"
         with:
           name: dotnet-runtime
-          path: out/Runtime
+          path: |
+            out/Runtime
+            out/dummy-logic/lib_loc_logic.so
 
       - name: Set Tag Environment Variable
         if: startsWith(github.ref, 'refs/tags/')
@@ -61,4 +71,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           name: Release ${{ env.RELEASE_VERSION }}
-          files: out/Runtime
+          files: |
+            out/Runtime
+            out/dummy-logic/lib_loc_logic.so
