@@ -3,6 +3,11 @@ using System.Runtime.InteropServices;
 public static class RunnableLogic
 {
     [UnmanagedCallersOnly(EntryPoint = "run")]
+    public static IntPtr RunAot(IntPtr optionPtr)
+    {
+        return Run(optionPtr);
+    }
+
     public static IntPtr Run(IntPtr optionPtr)
     {
         initializeFromOption(optionPtr);
@@ -36,6 +41,11 @@ public static class RunnableLogic
     }
 
     [UnmanagedCallersOnly(EntryPoint = "handleError")]
+    public static void HandleErrorAot(IntPtr optionPtr, IntPtr errorPtr)
+    {
+        HandleError(optionPtr, errorPtr);
+    }
+
     public static void HandleError(IntPtr optionPtr, IntPtr errorPtr)
     {
         initializeFromOption(optionPtr);
