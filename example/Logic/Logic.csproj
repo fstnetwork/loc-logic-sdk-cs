@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>lib_loc_logic</AssemblyName>
     <PublishAot>true</PublishAot>
+    <StripSymbols>true</StripSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +15,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="ILRepack.Lib.MSBuild.Task" Version="2.0.26" />
   </ItemGroup>
 
   <ItemGroup>
