@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Target Name="ILRepacker" AfterTargets="Publish" Condition="!$(PublishAot)">
+        <ItemGroup>
+          <InputAssemblies Include="$(PublishDir)*.dll" Exclude="$(PublishDir)$(AssemblyName)-merged.dll" />
+        </ItemGroup>
+
+        <ILRepack
+            Parallel="true"
+            Internalize="true"
+            InputAssemblies="@(InputAssemblies)"
+            TargetKind="Dll"
+            OutputFile="$(PublishDir)$(AssemblyName)-merged.dll"
+        />
+    </Target>
+</Project>

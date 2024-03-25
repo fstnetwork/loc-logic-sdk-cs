@@ -3,13 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.0.18</Version>
     <Nullable>enable</Nullable>
+    <AssemblyName>lib_loc_logic</AssemblyName>
     <PublishAot>true</PublishAot>
+    <PublishTrimmed>true</PublishTrimmed>
+    <StripSymbols>true</StripSymbols>
+    <NativeLib>Shared</NativeLib>
   </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\SDK\SDK.csproj" />
-    <!-- <PackageReference Include="FSTNetwork.LOC.Logic.Sdk" Version="0.0.18" /> -->
-  </ItemGroup>
 
 </Project>

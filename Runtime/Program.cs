@@ -1,5 +1,6 @@
 ﻿using CommandLine;
 using System.Runtime.InteropServices;
+using System.Reflection;
 using Saffron.ExternalRuntime;
 
 class Runtime
@@ -20,6 +21,9 @@ class Runtime
 
         [Option("task-id", Required = true, HelpText = "The Task ID in UInt128 format")]
         public required UInt128 TaskId { get; set; }
+
+        [Option("logic-dll", Required = false , HelpText = "The path of logic dll")]
+        public required string? LogicDll { get; set; }
     }
 
     static async Task<int> Main(string[] args)
@@ -30,10 +34,20 @@ class Runtime
             return 1;
         }
 
+        MethodInfo run = null;
+        MethodInfo handleError = null;
+        if (options.LogicDll != null)
+        {
+            Assembly dll = Assembly.LoadFrom(options.LogicDll);
+            Type runnableLogic = dll?.GetType("RunnableLogic");
+            run = runnableLogic?.GetMethod("Run");
+            handleError = runnableLogic?.GetMethod("HandleError");
+        }
+
         Console.WriteLine($".NET Runtime starting...");
         Console.WriteLine($"Execute Task with execution_id={Utils.EncodeUint128(options.ExecutionId)} task_id={Utils.EncodeUint128(options.TaskId)}");
 
-        return await Execute(options);
+        return await Execute(options, run, handleError);
     }
 
     static Options? ParseArguments(string[] args)
@@ -69,7 +83,7 @@ class Runtime
         return options;
     }
 
-    static async Task<int> Execute(Options options)
+    static async Task<int> Execute(Options options, MethodInfo? runFn, MethodInfo? handleErrorFn)
     {
         // initialize current TaskKey
         Global.TaskKey = new TaskKey(options.ExecutionId, options.TaskId);
@@ -87,7 +101,10 @@ class Runtime
         // execute Logic Railways
         if (await LogicRailway.IsRailwayOk())
         {
-            var errorPtr = run(optionPtr);
+            IntPtr errorPtr = runFn == null
+                ? run(optionPtr)
+                : (IntPtr)runFn.Invoke(null, new object[]{optionPtr});
+
             if (errorPtr == IntPtr.Zero)
             {
                 return 0;
@@ -99,7 +116,14 @@ class Runtime
 
             await LogicRailway.SwitchRailway(railwayError.GetType().ToString(), railwayError.Message);
 
-            handleError(optionPtr, errorPtr);
+            if (handleErrorFn == null)
+            {
+                handleError(optionPtr, errorPtr);
+            }
+            else
+            {
+                handleErrorFn.Invoke(null, new object[]{optionPtr, errorPtr});
+            }
             return 0;
         }
         else
@@ -110,7 +134,14 @@ class Runtime
             IntPtr errorPtr = Marshal.AllocHGlobal(Marshal.SizeOf<RailwayErrorWrapper>());
             Marshal.StructureToPtr(exWrapper, errorPtr, false);
 
-            handleError(optionPtr, errorPtr);
+            if (handleErrorFn == null)
+            {
+                handleError(optionPtr, errorPtr);
+            }
+            else
+            {
+                handleErrorFn.Invoke(null, new object[]{optionPtr, errorPtr});
+            }
             return 0;
         }
     }

@@ -5,7 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>FSTNetwork.LOC.Logic.Sdk</PackageId>
-    <Version>0.0.17</Version>
+    <Version>0.0.18</Version>
     <Nullable>enable</Nullable>
     <RepositoryUrl>https://github.com/fstnetwork/loc-logic-sdk-cs</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

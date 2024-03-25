@@ -91,7 +91,7 @@ dotnet restore --source "nugettest.org"
 ## Prepare for an offline environment
 
 ```bash
-export SDK_VERSION=0.0.17
+export SDK_VERSION=0.0.18
 export DOTNET_RUNTIME_VERSION=7.0.16
 
 # dotnet nuget add source https://apiint.nugettest.org/v3/index.json --name nugettest.org
